@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finn's Chaos Manager</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg:          #F5F3FF;
+–surface:     #FFFFFF;
+–surface-2:   #F9F8FF;
+–border:      #E8E4F8;
+–border-2:    #D4CEF0;
+
+–purple-100:  #EDE9FF;
+–purple-300:  #C4B8F0;
+–purple-500:  #8B7FD4;
+–purple-700:  #5B50A0;
+
+–mint-100:    #E8FFF2;
+–mint-500:    #52C97A;
+
+–rose-100:    #FFF0F0;
+–rose-500:    #E05757;
+
+–gold-100:    #FFFBEB;
+–gold-500:    #D4A017;
+
+–text-1:      #1E1A3C;
+–text-2:      #4A4570;
+–text-3:      #8C88AA;
+
+–radius-sm:   8px;
+–radius-md:   12px;
+–radius-lg:   20px;
+–radius-xl:   28px;
+
+–shadow-sm:   0 1px 3px rgba(91,80,160,0.08), 0 1px 2px rgba(91,80,160,0.04);
+–shadow-md:   0 4px 16px rgba(91,80,160,0.10), 0 1px 4px rgba(91,80,160,0.06);
+–shadow-lg:   0 12px 40px rgba(91,80,160,0.14), 0 2px 8px rgba(91,80,160,0.08);
+
+–font-body:   ‘Outfit’, sans-serif;
+–font-display:‘Crimson Pro’, serif;
+}
+
+html { font-size: 16px; }
+
+body {
+font-family: var(–font-body);
+background-color: var(–bg);
+color: var(–text-1);
+min-height: 100vh;
+line-height: 1.5;
+}
+
+/* Subtle background pattern */
+body::before {
+content: ‘’;
+position: fixed; inset: 0;
+background-image:
+radial-gradient(circle at 80% 10%, rgba(196,184,240,0.22) 0%, transparent 50%),
+radial-gradient(circle at 10% 90%, rgba(82,201,122,0.10) 0%, transparent 45%);
+pointer-events: none; z-index: 0;
+}
+
+/* ── Typography ─────────────────────────────────────────────── */
+.t-label   { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text-3); }
+.t-body    { font-size: 0.875rem; color: var(–text-2); line-height: 1.6; }
+.t-small   { font-size: 0.75rem; color: var(–text-3); }
+.t-display { font-family: var(–font-display); }
+
+/* ── Layout ─────────────────────────────────────────────────── */
+.page { position: relative; z-index: 1; }
+
+/* Landing */
+#landing {
+min-height: 100vh;
+display: flex; align-items: center; justify-content: center;
+padding: 24px;
+}
+#app { display: none; }
+
+.app-inner {
+max-width: 860px;
+margin: 0 auto;
+padding: 24px 20px 48px;
+}
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: var(–radius-lg);
+box-shadow: var(–shadow-sm);
+}
+.card-p { padding: 20px; }
+
+/* ── App Header ─────────────────────────────────────────────── */
+.app-header {
+display: flex; align-items: flex-start;
+justify-content: space-between; gap: 16px;
+margin-bottom: 20px;
+flex-wrap: wrap;
+}
+.char-name {
+font-family: var(–font-display);
+font-size: 1.75rem;
+font-weight: 600;
+color: var(–text-1);
+line-height: 1.1;
+}
+.char-sub {
+font-size: 0.82rem;
+color: var(–text-3);
+margin-top: 4px;
+}
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btn {
+display: inline-flex; align-items: center; gap: 7px;
+font-family: var(–font-body);
+font-size: 0.8rem; font-weight: 600;
+border: none; border-radius: 50px;
+padding: 8px 16px; cursor: pointer;
+transition: all 0.18s ease;
+white-space: nowrap;
+line-height: 1;
+}
+.btn svg { flex-shrink: 0; }
+
+.btn-primary {
+background: var(–purple-500);
+color: #fff;
+box-shadow: 0 2px 8px rgba(139,127,212,0.35);
+}
+.btn-primary:hover { background: var(–purple-700); box-shadow: 0 4px 14px rgba(139,127,212,0.45); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-ghost {
+background: transparent;
+color: var(–text-3);
+border: 1px solid var(–border-2);
+}
+.btn-ghost:hover { background: var(–purple-100); color: var(–text-2); border-color: var(–purple-300); }
+
+.btn-success {
+background: var(–mint-100);
+color: #2A7A48;
+border: 1px solid rgba(82,201,122,0.3);
+}
+.btn-success:hover { background: rgba(82,201,122,0.2); transform: translateY(-1px); }
+
+/* Wild Magic Button */
+.btn-surge {
+width: 100%;
+justify-content: center;
+font-family: var(–font-display);
+font-size: 1.05rem;
+font-weight: 600;
+padding: 14px 24px;
+border-radius: var(–radius-md);
+background: linear-gradient(135deg, var(–purple-500) 0%, #7060CC 100%);
+color: #fff;
+border: none;
+box-shadow: 0 4px 20px rgba(139,127,212,0.4);
+cursor: pointer;
+position: relative; overflow: hidden;
+transition: all 0.2s ease;
+letter-spacing: 0.01em;
+}
+.btn-surge::after {
+content: ‘’;
+position: absolute; inset: 0;
+background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+pointer-events: none;
+}
+.btn-surge:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(139,127,212,0.5); }
+.btn-surge:active { transform: translateY(0); }
+.btn-surge.tides-active {
+background: linear-gradient(135deg, #C8960A 0%, #D4A017 100%);
+box-shadow: 0 4px 20px rgba(212,160,23,0.4);
+animation: gold-pulse 2.2s ease-in-out infinite;
+}
+@keyframes gold-pulse {
+0%, 100% { box-shadow: 0 4px 20px rgba(212,160,23,0.4); }
+50%       { box-shadow: 0 6px 28px rgba(212,160,23,0.6), 0 0 0 4px rgba(212,160,23,0.12); }
+}
+
+/* ── Grid ───────────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 580px) {
+.grid-2 { grid-template-columns: 1fr; }
+}
+
+/* ── Stats Bar ──────────────────────────────────────────────── */
+.stats-row {
+display: flex; gap: 8px; flex-wrap: wrap;
+}
+.stat-chip {
+display: flex; flex-direction: column; align-items: center;
+background: var(–surface-2);
+border: 1px solid var(–border);
+border-radius: var(–radius-md);
+padding: 10px 14px; min-width: 56px;
+gap: 2px;
+}
+.stat-val { font-size: 1.2rem; font-weight: 700; color: var(–text-1); line-height: 1; }
+.stat-mod { font-size: 0.7rem; font-weight: 600; color: var(–purple-500); }
+.stat-key { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-3); }
+
+/* ── HP Tracker ─────────────────────────────────────────────── */
+.hp-block {
+display: flex; align-items: center; gap: 12px;
+margin: 12px 0 10px;
+}
+.hp-num {
+font-family: var(–font-display);
+font-size: 2.8rem; font-weight: 600;
+color: var(–text-1); line-height: 1;
+flex: 1; text-align: center;
+}
+.hp-max { font-size: 0.75rem; color: var(–text-3); text-align: center; }
+
+.hp-btn {
+width: 44px; height: 44px; border-radius: 50%;
+border: none; cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+transition: all 0.15s ease; flex-shrink: 0;
+}
+.hp-btn-minus { background: var(–rose-100); color: var(–rose-500); }
+.hp-btn-plus  { background: var(–mint-100); color: var(–mint-500); }
+.hp-btn:hover { transform: scale(1.1); }
+.hp-btn:active { transform: scale(0.93); }
+
+.hp-bar {
+height: 6px; border-radius: 3px;
+background: var(–border);
+overflow: hidden;
+}
+.hp-fill {
+height: 100%; border-radius: 3px;
+transition: width 0.4s ease, background-color 0.4s ease;
+}
+
+/* ── Sorcery Points ─────────────────────────────────────────── */
+.sp-row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
+.sp-pip {
+width: 36px; height: 36px; border-radius: 50%;
+border: 2px solid var(–border-2);
+cursor: pointer;
+transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+display: flex; align-items: center; justify-content: center;
+}
+.sp-pip.on {
+background: var(–purple-500);
+border-color: var(–purple-500);
+box-shadow: 0 2px 10px rgba(139,127,212,0.4);
+}
+.sp-pip.off { background: var(–surface-2); }
+.sp-pip:hover { transform: scale(1.18) rotate(8deg); }
+
+/* ── Spell Slots ─────────────────────────────────────────────── */
+.slot-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.slot-pip {
+width: 28px; height: 28px; border-radius: var(–radius-sm);
+border: 2px solid var(–border-2);
+cursor: pointer;
+transition: all 0.18s ease;
+display: flex; align-items: center; justify-content: center;
+}
+.slot-pip.on {
+background: var(–purple-100);
+border-color: var(–purple-300);
+}
+.slot-pip.on svg { opacity: 0.8; }
+.slot-pip.off { background: transparent; }
+.slot-pip.off svg { opacity: 0; }
+.slot-pip:hover { transform: scale(1.12); }
+
+/* ── Wild Magic Panel ───────────────────────────────────────── */
+.tides-row {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 16px;
+}
+.tides-label { font-size: 0.82rem; font-weight: 600; color: var(–text-2); }
+.tides-status { font-size: 0.7rem; color: var(–text-3); margin-top: 1px; }
+
+.toggle {
+width: 48px; height: 26px; border-radius: 13px;
+border: none; cursor: pointer;
+position: relative; transition: background 0.25s ease;
+flex-shrink: 0;
+}
+.toggle-thumb {
+position: absolute; top: 3px;
+width: 20px; height: 20px; border-radius: 50%;
+background: #fff;
+box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+transition: left 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.last-roll {
+margin-top: 10px;
+font-size: 0.75rem; color: var(–text-3);
+text-align: center; min-height: 18px;
+}
+.table-link {
+display: flex; align-items: center; gap: 5px; justify-content: center;
+margin-top: 8px; font-size: 0.72rem; font-weight: 500; color: var(–text-3);
+background: none; border: none; cursor: pointer;
+font-family: var(–font-body);
+transition: color 0.15s;
+}
+.table-link:hover { color: var(–purple-500); }
+
+/* ── Filter Buttons ─────────────────────────────────────────── */
+.filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-btn {
+display: inline-flex; align-items: center; gap: 5px;
+font-family: var(–font-body);
+font-size: 0.73rem; font-weight: 600;
+padding: 5px 12px; border-radius: 50px;
+border: 1px solid var(–border-2);
+background: transparent; color: var(–text-3);
+cursor: pointer; transition: all 0.15s ease;
+white-space: nowrap;
+}
+.filter-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+.filter-btn:hover { border-color: var(–purple-300); color: var(–text-2); background: var(–purple-100); }
+.filter-btn.active {
+background: var(–purple-500); color: #fff;
+border-color: transparent;
+box-shadow: 0 2px 8px rgba(139,127,212,0.3);
+}
+
+/* ── Spell Cards ─────────────────────────────────────────────── */
+.spell-list { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
+.spell-card {
+display: flex; align-items: center; gap: 10px;
+padding: 10px 12px; border-radius: var(–radius-md);
+border: 1px solid transparent;
+background: var(–surface-2);
+transition: all 0.15s ease;
+cursor: default;
+}
+.spell-card.clickable { cursor: pointer; }
+.spell-card:hover { background: var(–purple-100); border-color: var(–border); }
+
+.spell-card-left { flex: 1; min-width: 0; }
+.spell-name {
+font-size: 0.875rem; font-weight: 600; color: var(–text-1);
+display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.spell-meta { font-size: 0.72rem; color: var(–text-3); margin-top: 2px; }
+
+.action-badge {
+font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
+padding: 2px 7px; border-radius: 50px;
+white-space: nowrap; flex-shrink: 0;
+}
+.badge-action  { background: var(–purple-100); color: var(–purple-700); }
+.badge-bonus   { background: var(–gold-100); color: #8A6800; border: 1px solid rgba(212,160,23,0.25); }
+.badge-reactie { background: var(–mint-100); color: #2A7A48; border: 1px solid rgba(82,201,122,0.25); }
+
+.info-icon { color: var(–text-3); flex-shrink: 0; transition: color 0.15s; }
+.spell-card:hover .info-icon { color: var(–purple-500); }
+
+.roll-btn {
+display: inline-flex; align-items: center; gap: 5px;
+font-family: var(–font-body);
+font-size: 0.72rem; font-weight: 600;
+padding: 5px 10px; border-radius: var(–radius-sm);
+background: var(–surface); border: 1px solid var(–border-2);
+color: var(–text-2); cursor: pointer;
+transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0;
+}
+.roll-btn:hover { background: var(–purple-100); border-color: var(–purple-300); color: var(–purple-700); transform: scale(1.04); }
+
+/* ── Modals ──────────────────────────────────────────────────── */
+.modal-backdrop {
+position: fixed; inset: 0;
+background: rgba(30,26,60,0.5);
+backdrop-filter: blur(4px);
+z-index: 200;
+display: none; align-items: center; justify-content: center;
+padding: 20px;
+}
+.modal-backdrop.open { display: flex; }
+
+.modal {
+background: var(–surface);
+border-radius: var(–radius-xl);
+width: 100%; max-width: 480px;
+max-height: 85vh; overflow-y: auto;
+box-shadow: var(–shadow-lg);
+animation: modal-in 0.25s cubic-bezier(0.34,1.4,0.64,1);
+}
+@keyframes modal-in {
+from { transform: scale(0.92) translateY(12px); opacity: 0; }
+to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+.modal-header {
+display: flex; align-items: flex-start;
+justify-content: space-between; gap: 12px;
+padding: 24px 24px 0;
+}
+.modal-title {
+font-family: var(–font-display);
+font-size: 1.4rem; font-weight: 600;
+color: var(–text-1);
+}
+.modal-body { padding: 16px 24px 24px; }
+.modal-close {
+width: 32px; height: 32px; border-radius: 50%;
+border: none; background: var(–surface-2);
+color: var(–text-3); cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; transition: all 0.15s;
+}
+.modal-close:hover { background: var(–purple-100); color: var(–text-1); }
+
+.modal-stats-grid {
+display: grid; grid-template-columns: 1fr 1fr;
+gap: 8px; margin-bottom: 16px;
+}
+.modal-stat {
+display: flex; align-items: flex-start; gap: 8px;
+background: var(–surface-2);
+border: 1px solid var(–border);
+border-radius: var(–radius-md); padding: 10px 12px;
+}
+.modal-stat svg { margin-top: 1px; color: var(–purple-500); flex-shrink: 0; }
+.modal-stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-3); }
+.modal-stat-val { font-size: 0.82rem; font-weight: 600; color: var(–text-1); margin-top: 1px; }
+
+.modal-desc { font-size: 0.85rem; color: var(–text-2); line-height: 1.7; }
+.modal-upcast {
+margin-top: 12px; padding: 12px 14px;
+background: var(–purple-100);
+border-radius: var(–radius-md);
+font-size: 0.8rem; color: var(–purple-700); line-height: 1.55;
+}
+
+/* Surge modal — wide */
+.modal-wide { max-width: 560px; }
+.surge-modal-header {
+padding: 28px 24px 0;
+text-align: center;
+}
+.surge-icon {
+width: 56px; height: 56px;
+background: var(–purple-100);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 14px;
+color: var(–purple-500);
+animation: surge-pop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes surge-pop {
+from { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+.surge-d100 { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; color: var(–purple-500); margin-top: 4px; }
+.surge-text { font-size: 0.9rem; color: var(–text-2); line-height: 1.65; margin-top: 12px; }
+
+.surge-table-row {
+display: flex; gap: 12px; align-items: flex-start;
+padding: 9px 12px; border-radius: var(–radius-sm);
+}
+.surge-table-row:nth-child(odd) { background: var(–surface-2); }
+.surge-roll-num {
+font-family: var(–font-display);
+font-size: 0.72rem; font-weight: 600;
+color: var(–purple-500); min-width: 40px; padding-top: 1px;
+flex-shrink: 0;
+}
+
+/* ── Toast ──────────────────────────────────────────────────── */
+.toast {
+position: fixed; bottom: 24px; right: 24px;
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: var(–radius-md);
+padding: 12px 18px;
+box-shadow: var(–shadow-lg);
+z-index: 300;
+display: none;
+animation: toast-in 0.25s cubic-bezier(0.34,1.4,0.64,1);
+border-left: 3px solid var(–purple-500);
+min-width: 180px;
+}
+@keyframes toast-in {
+from { transform: translateY(12px); opacity: 0; }
+to   { transform: translateY(0); opacity: 1; }
+}
+.toast-spell { font-size: 0.7rem; color: var(–text-3); margin-bottom: 2px; }
+.toast-result { font-size: 1.5rem; font-weight: 700; color: var(–text-1); }
+.toast-dice   { font-size: 0.8rem; color: var(–text-3); }
+
+/* ── Landing ─────────────────────────────────────────────────── */
+.landing-card {
+background: var(–surface);
+border: 1px solid var(–border);
+border-radius: var(–radius-xl);
+box-shadow: var(–shadow-lg);
+padding: 48px 40px;
+max-width: 480px; width: 100%;
+text-align: center;
+}
+.landing-icon {
+width: 64px; height: 64px;
+background: var(–purple-100);
+border-radius: 50%;
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 20px;
+color: var(–purple-500);
+}
+.landing-title {
+font-family: var(–font-display);
+font-size: 1.8rem; font-weight: 600;
+color: var(–text-1); margin-bottom: 4px;
+}
+.landing-sub { font-size: 0.82rem; color: var(–text-3); margin-bottom: 32px; }
+
+.upload-zone {
+border: 2px dashed var(–border-2);
+border-radius: var(–radius-lg);
+padding: 32px 24px;
+cursor: pointer;
+transition: all 0.2s ease;
+background: var(–surface-2);
+margin-bottom: 16px;
+}
+.upload-zone:hover { border-color: var(–purple-300); background: var(–purple-100); }
+.upload-zone-icon {
+width: 44px; height: 44px;
+background: var(–surface);
+border-radius: var(–radius-md);
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 12px;
+color: var(–text-3);
+box-shadow: var(–shadow-sm);
+}
+.upload-title { font-size: 0.88rem; font-weight: 600; color: var(–text-1); margin-bottom: 3px; }
+.upload-sub   { font-size: 0.75rem; color: var(–text-3); }
+
+.divider {
+display: flex; align-items: center; gap: 12px;
+margin: 16px 0; color: var(–text-3); font-size: 0.75rem;
+}
+.divider::before, .divider::after {
+content: ‘’; flex: 1; height: 1px; background: var(–border);
+}
+
+#parseStatus { margin-top: 14px; font-size: 0.8rem; color: var(–text-3); min-height: 18px; }
+
+/* ── Section headers ─────────────────────────────────────────── */
+.section-head {
+display: flex; align-items: center; justify-content: space-between;
+margin-bottom: 14px; gap: 10px;
+}
+
+/* ── Utility ─────────────────────────────────────────────────── */
+.mb-14 { margin-bottom: 14px; }
+.mb-8  { margin-bottom: 8px; }
+
+/* ── Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border-2); border-radius: 3px; }
+
+/* Responsive tweaks */
+@media (max-width: 480px) {
+.landing-card { padding: 32px 24px; }
+.app-inner { padding: 16px 14px 40px; }
+.char-name { font-size: 1.4rem; }
+}
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.tab-bar {
+display: flex; gap: 2px;
+background: var(–surface-2);
+border: 1px solid var(–border);
+border-radius: var(–radius-lg);
+padding: 4px;
+margin-bottom: 20px;
+}
+.tab-btn {
+flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+font-family: var(–font-body); font-size: 0.82rem; font-weight: 600;
+padding: 9px 16px; border-radius: calc(var(–radius-lg) - 4px);
+border: none; background: transparent; color: var(–text-3);
+cursor: pointer; transition: all 0.18s ease;
+}
+.tab-btn svg { flex-shrink: 0; }
+.tab-btn:hover { color: var(–text-2); background: rgba(139,127,212,0.06); }
+.tab-btn.active {
+background: var(–surface); color: var(–text-1);
+box-shadow: var(–shadow-sm);
+}
+
+/* ── Skills tab ──────────────────────────────────────────────── */
+.skills-grid {
+display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+@media (max-width: 480px) { .skills-grid { grid-template-columns: 1fr; } }
+
+.skill-row {
+display: flex; align-items: center; gap: 10px;
+padding: 9px 12px; border-radius: var(–radius-md);
+background: var(–surface-2);
+border: 1px solid transparent;
+transition: all 0.15s ease;
+}
+.skill-row:hover { background: var(–purple-100); border-color: var(–border); }
+.skill-row.proficient { border-left: 3px solid var(–purple-500); }
+.skill-row.expertise  { border-left: 3px solid var(–gold-500); }
+
+.skill-pip {
+width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+border: 1.5px solid var(–border-2);
+}
+.skill-pip.proficient { background: var(–purple-500); border-color: var(–purple-500); }
+.skill-pip.expertise  { background: var(–gold-500);   border-color: var(–gold-500); }
+
+.skill-name { font-size: 0.82rem; font-weight: 500; color: var(–text-2); flex: 1; }
+.skill-attr { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-3); }
+.skill-bonus {
+font-size: 0.88rem; font-weight: 700; color: var(–text-1);
+min-width: 32px; text-align: right; flex-shrink: 0;
+}
+
+.saves-grid {
+display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+margin-bottom: 16px;
+}
+@media (max-width: 420px) { .saves-grid { grid-template-columns: repeat(2,1fr); } }
+
+.save-chip {
+display: flex; align-items: center; gap: 8px;
+padding: 8px 12px; border-radius: var(–radius-md);
+background: var(–surface-2); border: 1px solid transparent;
+}
+.save-chip.proficient { border-color: var(–purple-300); background: var(–purple-100); }
+.save-chip-label { font-size: 0.7rem; font-weight: 600; color: var(–text-3); text-transform: uppercase; letter-spacing: 0.06em; flex: 1; }
+.save-chip-val { font-size: 0.9rem; font-weight: 700; color: var(–text-1); }
+
+.passive-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 8px 0; border-bottom: 1px solid var(–border);
+}
+.passive-row:last-child { border-bottom: none; }
+.passive-label { font-size: 0.82rem; color: var(–text-2); }
+.passive-val { font-size: 0.88rem; font-weight: 700; color: var(–text-1); }
+
+</style>
+</head>
+<body class="page">
+
+<!-- ══ LANDING ══════════════════════════════════════════════ -->
+
+<div id="landing">
+  <div class="landing-card">
+    <div class="landing-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <h1 class="landing-title">Finn's Chaos Manager</h1>
+    <p class="landing-sub">Level 3 Wild Magic Sorcerer · v1.4</p>
+
+```
+<div class="upload-zone" id="uploadZone" onclick="document.getElementById('pdfInput').click()">
+  <div class="upload-zone-icon">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="12" y1="18" x2="12" y2="12"/>
+      <line x1="9" y1="15" x2="15" y2="15"/>
+    </svg>
+  </div>
+  <p class="upload-title">Upload D&amp;D Beyond PDF</p>
+  <p class="upload-sub">Klik of sleep hier naartoe · AcroForm velden worden gelezen</p>
+  <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handlePDFUpload(event)">
+</div>
+
+<div class="divider">of</div>
+
+<button class="btn btn-ghost" style="width:100%; justify-content:center;" onclick="loadFallbackData()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </svg>
+  Gebruik Finn's standaard data
+</button>
+
+<div id="parseStatus"></div>
+```
+
+  </div>
+</div>
+
+<!-- ══ APP ══════════════════════════════════════════════════ -->
+
+<div id="app">
+<div class="app-inner">
+
+  <!-- Header -->
+
+  <div class="app-header">
+    <div>
+      <div class="char-name" id="charName">Finn</div>
+      <div class="char-sub" id="charSub">Level 3 Wild Magic Sorcerer</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-success" onclick="longRest()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        Long Rest
+      </button>
+      <button class="btn btn-ghost" onclick="resetToLanding()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+        </svg>
+        PDF opnieuw
+      </button>
+    </div>
+  </div>
+
+  <!-- Ability Scores -->
+
+  <div class="card card-p mb-14">
+    <div class="t-label mb-8">Ability Scores</div>
+    <div class="stats-row" id="statsRow"></div>
+    <div id="extraStats" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"></div>
+  </div>
+
+  <!-- HP + Wild Magic row -->
+
+  <div class="grid-2 mb-14">
+
+```
+<!-- HP -->
+<div class="card card-p">
+  <div class="t-label">Hit Points</div>
+  <div class="hp-block">
+    <button class="hp-btn hp-btn-minus" onclick="changeHP(-1)" aria-label="Verminder HP">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <div>
+      <div class="hp-num" id="currentHP">14</div>
+      <div class="hp-max">van <span id="maxHP">14</span></div>
+    </div>
+    <button class="hp-btn hp-btn-plus" onclick="changeHP(1)" aria-label="Verhoog HP">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+  <div class="hp-bar"><div class="hp-fill" id="hpFill" style="width:100%;background:var(--mint-500)"></div></div>
+</div>
+
+<!-- Wild Magic -->
+<div class="card card-p">
+  <div class="t-label mb-8">Wild Magic</div>
+  <div class="tides-row">
+    <div>
+      <div class="tides-label">Tides of Chaos</div>
+      <div class="tides-status" id="tidesStatus">Beschikbaar</div>
+    </div>
+    <button class="toggle" id="tidesToggle" onclick="toggleTides()" aria-label="Toggle Tides of Chaos">
+      <div class="toggle-thumb" id="tidesThumb"></div>
+    </button>
+  </div>
+  <button class="btn-surge" id="surgeBtn" onclick="rollWildMagic()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:8px;">
+      <rect x="2" y="2" width="20" height="20" rx="5"/>
+      <circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+    </svg>
+    Wild Magic Surge
+  </button>
+  <div class="last-roll" id="lastRoll"></div>
+  <button class="table-link" onclick="openSurgeTable()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+      <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+    </svg>
+    Bekijk surge table (50 resultaten)
+  </button>
+</div>
+```
+
+  </div>
+
+  <!-- Resources row -->
+
+  <div class="grid-2 mb-14">
+
+```
+<!-- Sorcery Points -->
+<div class="card card-p">
+  <div class="t-label mb-8">Sorcery Points</div>
+  <div class="sp-row" id="spRow"></div>
+</div>
+
+<!-- Spell Slots -->
+<div class="card card-p">
+  <div class="t-label mb-8">Spell Slots</div>
+  <div style="margin-bottom:10px;">
+    <div class="t-small mb-8">Level 1</div>
+    <div class="slot-row" id="slots1"></div>
+  </div>
+  <div>
+    <div class="t-small mb-8">Level 2</div>
+    <div class="slot-row" id="slots2"></div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- Tab navigation -->
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-play" onclick="switchTab('play')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+      Spelen
+    </button>
+    <button class="tab-btn" id="tab-skills" onclick="switchTab('skills')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+      Skills
+    </button>
+  </div>
+
+  <!-- TAB: Spelen -->
+
+  <div id="pane-play">
+    <!-- Spells -->
+    <div class="card card-p">
+      <div class="section-head">
+        <div class="t-label">Spreuken &amp; Acties</div>
+        <div class="filter-group" id="filterGroup">
+          <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Alles
+          </button>
+          <button class="filter-btn" data-filter="Actie" onclick="setFilter('Actie')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Actie
+          </button>
+          <button class="filter-btn" data-filter="Bonus Actie" onclick="setFilter('Bonus Actie')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Bonus
+          </button>
+          <button class="filter-btn" data-filter="Reactie" onclick="setFilter('Reactie')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Reactie
+          </button>
+        </div>
+      </div>
+      <div class="spell-list" id="spellList"></div>
+    </div>
+  </div>
+
+  <!-- TAB: Skills -->
+
+  <div id="pane-skills" style="display:none;">
+
+```
+<!-- Saving Throws -->
+<div class="card card-p mb-14">
+  <div class="t-label mb-8">Saving Throws</div>
+  <div class="saves-grid" id="savesGrid"></div>
+</div>
+
+<!-- Skills -->
+<div class="card card-p mb-14">
+  <div class="section-head">
+    <div class="t-label">Vaardigheden</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text-3);">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--purple-500);"></div> Vaardig
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--text-3);">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--gold-500);"></div> Expertise
+      </div>
+    </div>
+  </div>
+  <div class="skills-grid" id="skillsGrid"></div>
+</div>
+
+<!-- Passive scores -->
+<div class="card card-p">
+  <div class="t-label mb-8">Passieve scores</div>
+  <div id="passiveScores"></div>
+</div>
+```
+
+  </div>
+
+</div>
+</div>
+
+<!-- ══ MODALS ════════════════════════════════════════════════ -->
+
+<!-- Surge overlay -->
+
+<div class="modal-backdrop" id="surgeModal" onclick="closeSurge()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="surge-modal-header">
+      <div class="surge-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </div>
+      <div class="t-display" style="font-size:1.5rem;font-weight:600;color:var(--text-1);">Wild Magic Surge!</div>
+      <div class="surge-d100" id="surgeD100"></div>
+      <div class="surge-text" id="surgeText"></div>
+    </div>
+    <div class="modal-body" style="padding-top:20px;text-align:center;">
+      <button class="btn btn-primary" onclick="closeSurge()">Begrepen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Surge Table -->
+
+<div class="modal-backdrop" id="surgeTableModal" onclick="closeSurgeTable()">
+  <div class="modal modal-wide" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Wild Magic Surge Table</div>
+        <div class="t-small" style="margin-top:3px;">Officiële PHB resultaten · d100</div>
+      </div>
+      <button class="modal-close" onclick="closeSurgeTable()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="surgeTableBody"></div>
+  </div>
+</div>
+
+<!-- Spell Detail -->
+
+<div class="modal-backdrop" id="spellModal" onclick="closeSpellModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="spellModalTitle"></div>
+        <div class="t-small" style="margin-top:3px;" id="spellModalSchool"></div>
+      </div>
+      <button class="modal-close" onclick="closeSpellModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats-grid" id="spellModalStats"></div>
+      <div class="modal-desc" id="spellModalDesc"></div>
+      <div class="modal-upcast" id="spellModalUpcast" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+
+<div class="toast" id="toast">
+  <div class="toast-spell" id="toastSpell"></div>
+  <div>
+    <span class="toast-result" id="toastResult"></span>
+    <span class="toast-dice" id="toastDice"></span>
+  </div>
+</div>
+
+<script>
+// ── PDF.js ────────────────────────────────────────────────────
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+// ── Data ──────────────────────────────────────────────────────
+const FINN_DEFAULT = {
+  name: "Fionnghuala \"Finn\" Swiftstep",
+  race: "Eladrin (Variant)",
+  class: "Wild Magic Sorcerer",
+  background: "Noble",
+  level: 3,
+  maxHP: 14,
+  currentHP: 14,
+  ac: 12,
+  initiative: 2,
+  speed: "30 ft.",
+  spellSaveDC: 13,
+  spellAttackBonus: 5,
+  stats: { STR: 8, DEX: 15, CON: 10, INT: 14, WIS: 14, CHA: 17 },
+  sorceryPoints: { max: 3, current: 3 },
+  spellSlots: {
+    1: { max: 4, current: 4 },
+    2: { max: 2, current: 2 }
+  },
+  tidesAvailable: true,
+  spells: [
+    { name: "Prestidigitation", level: "Cantrip", damage: "-", type: "Utility", action: "Actie" },
+    { name: "Fire Bolt",        level: "Cantrip", damage: "1d10", type: "Vuur",    action: "Actie", hit: "+5" },
+    { name: "Mage Hand",        level: "Cantrip", damage: "-",    type: "Utility", action: "Actie" },
+    { name: "Minor Illusion",   level: "Cantrip", damage: "-",    type: "Illusie", action: "Actie" },
+    { name: "Chromatic Orb",    level: "1", damage: "3d8",        type: "Keuze",       action: "Actie",       cost: "slot 1", hit: "+5" },
+    { name: "Magic Missile",    level: "1", damage: "3x(1d4+1)",  type: "Kracht",      action: "Actie",       cost: "slot 1" },
+    { name: "Shield",           level: "1", damage: "-",          type: "Bescherming", action: "Reactie",     cost: "slot 1" },
+    { name: "Burning Hands",    level: "1", damage: "3d6",        type: "Vuur",        action: "Actie",       cost: "slot 1", save: "DEX 13" },
+    { name: "Witch Bolt",       level: "1", damage: "2d12",       type: "Bliksem",     action: "Actie",       cost: "slot 1", hit: "+5" },
+    { name: "Detect Thoughts",  level: "2", damage: "-",          type: "Divination",  action: "Actie",       cost: "slot 2", save: "WIS 13" },
+    { name: "Misty Step",       level: "2", damage: "-",          type: "Teleport",    action: "Bonus Actie", cost: "1/SR (Fey Step)" },
+  ]
+};
+
+// Wild Magic Surge table — alle 50 officiële PHB resultaten (d100)
+const SURGE_RESULTS = [
+  { roll:"01-02", text:"Rol aan het begin van elk van je beurten voor de volgende minuut opnieuw op deze tabel (negeer dit resultaat bij latere rollen)." },
+  { roll:"03-04", text:"Je kunt gedurende de volgende minuut elk onzichtbaar wezen zien als je er zichtlijn op hebt." },
+  { roll:"05-06", text:"Een modron, gekozen en bestuurd door de DM, verschijnt in een onbezet vakje binnen 5 ft van jou, en verdwijnt 1 minuut later." },
+  { roll:"07-08", text:"Je werpt Fireball als een spreuk van 3e niveau, gecentreerd op jezelf." },
+  { roll:"09-10", text:"Je werpt Magic Missile als een spreuk van 5e niveau." },
+  { roll:"11-12", text:"Rol een d10. Je lengte verandert met een aantal centimeter gelijk aan de uitkomst. Bij een oneven uitkomst krimp je; bij een even uitkomst groei je." },
+  { roll:"13-14", text:"Je werpt Confusion, gecentreerd op jezelf." },
+  { roll:"15-16", text:"Gedurende de volgende minuut herwin je 5 HP aan het begin van elk van je beurten." },
+  { roll:"17-18", text:"Je krijgt een lange baard van veren die blijft totdat je niest, waarna de veren van je gezicht exploderen." },
+  { roll:"19-20", text:"Je werpt Grease, gecentreerd op jezelf." },
+  { roll:"21-22", text:"Wezens hebben nadeel op reddingworpen tegen de volgende spreuk die je in de komende minuut werpt die een reddingworp vereist." },
+  { roll:"23-24", text:"Je huid wordt een levendige tint blauw. Een Remove Curse spreuk kan dit effect beëindigen." },
+  { roll:"25-26", text:"Er verschijnt een oog op je voorhoofd voor de volgende minuut. Gedurende die tijd heb je voordeel op Wisdom (Perception) checks die op zicht vertrouwen." },
+  { roll:"27-28", text:"Gedurende de volgende minuut hebben al je spreuken met een wierptijd van 1 actie een wierptijd van 1 bonusactie." },
+  { roll:"29-30", text:"Je teleporteert tot 60 ft naar een onbezet plek van jouw keuze die je kunt zien." },
+  { roll:"31-32", text:"Je wordt getransporteerd naar het Astrale Vlak tot het einde van je volgende beurt, waarna je terugkeert naar de plek die je eerder innam (of het dichtstbijzijnde onbezette vakje)." },
+  { roll:"33-34", text:"Maximaliseer de schade van de volgende schadeverwekkende spreuk die je werpt binnen de volgende minuut." },
+  { roll:"35-36", text:"Rol een d10. Je leeftijd verandert met een aantal jaren gelijk aan de uitkomst. Bij een oneven uitkomst word je jonger (minimum 1 jaar oud); bij een even uitkomst word je ouder." },
+  { roll:"37-38", text:"1d6 flumphs, bestuurd door de DM, verschijnen in onbezette vakjes binnen 60 ft van jou en zijn bang voor jou. Ze verdwijnen na 1 minuut." },
+  { roll:"39-40", text:"Je herwinnen 2d10 HP." },
+  { roll:"41-42", text:"Je verandert in een bloempot tot het begin van je volgende beurt. Als plant ben je uitgeschakeld en kwetsbaar voor alle schade. Als je naar 0 HP daalt, breekt je pot en keert je vorm terug." },
+  { roll:"43-44", text:"Gedurende de volgende minuut kun je als bonusactie op elk van je beurten teleporteren tot 20 ft." },
+  { roll:"45-46", text:"Je werpt Levitate op jezelf." },
+  { roll:"47-48", text:"Een eenhoorn, bestuurd door de DM, verschijnt in een vakje binnen 5 ft van jou en verdwijnt 1 minuut later." },
+  { roll:"49-50", text:"Je kunt de volgende minuut niet spreken. Telkens als je het probeert, drijven er roze bellen uit je mond." },
+  { roll:"51-52", text:"Een spectraal schild zweeft naast je voor de volgende minuut en geeft je +2 op AC en immuniteit voor Magic Missile." },
+  { roll:"53-54", text:"Je bent immuun voor bedwelming door alcohol voor de volgende 5d6 dagen." },
+  { roll:"55-56", text:"Je haar valt uit, maar groeit binnen 24 uur terug." },
+  { roll:"57-58", text:"Gedurende de volgende minuut vat elk brandbaar object dat je aanraakt dat niet door een ander wezen gedragen of gedragen wordt vlam." },
+  { roll:"59-60", text:"Je herwinnen je laagste verbruikte spreuksleuf." },
+  { roll:"61-62", text:"Gedurende de volgende minuut moet je schreeuwen wanneer je spreekt." },
+  { roll:"63-64", text:"Je werpt Fog Cloud, gecentreerd op jezelf." },
+  { roll:"65-66", text:"Tot drie wezens naar jouw keuze binnen 30 ft van jou nemen 4d10 bliksemschade." },
+  { roll:"67-68", text:"Je bent bang voor het dichtstbijzijnde wezen tot het einde van je volgende beurt." },
+  { roll:"69-70", text:"Elk wezen binnen 30 ft van jou wordt onzichtbaar voor de volgende minuut. Onzichtbaarheid eindigt voor een wezen wanneer het aanvalt of een spreuk werpt." },
+  { roll:"71-72", text:"Je krijgt resistentie tegen alle schade voor de volgende minuut." },
+  { roll:"73-74", text:"Een willekeurig wezen binnen 60 ft van jou wordt vergiftigd voor 1d4 uur." },
+  { roll:"75-76", text:"Je gloeit met helder licht in een straal van 30 ft voor de volgende minuut. Elk wezen dat zijn beurt eindigt binnen 5 ft van jou is verblind tot het einde van zijn volgende beurt." },
+  { roll:"77-78", text:"Je werpt Polymorph op jezelf. Als je de reddingworp mislukt, verander je in een schaap voor de duur van de spreuk." },
+  { roll:"79-80", text:"Illusoire vlinders en bloemblaadjes fladderen in de lucht binnen 10 ft van jou voor de volgende minuut." },
+  { roll:"81-82", text:"Je kunt onmiddellijk één extra actie ondernemen." },
+  { roll:"83-84", text:"Elk wezen binnen 30 ft van jou neemt 1d10 necrotische schade. Je herwinnen HP gelijk aan de som van de uitgedeelde necrotische schade." },
+  { roll:"85-86", text:"Je werpt Mirror Image." },
+  { roll:"87-88", text:"Je werpt Fly op een willekeurig wezen binnen 60 ft van jou." },
+  { roll:"89-90", text:"Je bent onzichtbaar voor de volgende minuut. Gedurende die tijd kunnen andere wezens je niet horen. De onzichtbaarheid eindigt als je aanvalt of een spreuk werpt." },
+  { roll:"91-92", text:"Als je binnen de volgende minuut sterft, kom je onmiddellijk terug tot leven alsof door de Reincarnate spreuk." },
+  { roll:"93-94", text:"Je formaat neemt met één categorie toe voor de volgende minuut." },
+  { roll:"95-96", text:"Jij en alle wezens binnen 30 ft van jou krijgen kwetsbaarheid voor doordringende schade voor de volgende minuut." },
+  { roll:"97-98", text:"Je wordt omgeven door vage, etherische muziek voor de volgende minuut." },
+  { roll:"99-00", text:"Je herwinnen alle verbruikte sorcery points." },
+];
+
+// Full spell descriptions (SRD / PHB 2024)
+const SPELL_INFO = {
+  "Prestidigitation": {
+    school: "Transmutatie", level: "Cantrip", castTime: "1 actie", range: "10 ft.",
+    components: "V, S", duration: "Tot 1 uur",
+    description: "Dit kleine wonder is een magisch kunststje voor beginners. Je creëert een van de volgende effecten binnen bereik:\n• Een onschadelijk zintuiglijk effect (vonken, wind, muziek, geur).\n• Steek een kaars, fakkel of klein vuur aan of doof het.\n• Reinig of bevuil een object van max. 1 kubieke voet onmiddellijk.\n• Koel, verwarm of begeur tot 1 kubieke voet niet-levend materiaal voor 1 uur.\n• Kleur, markering of symbool verschijnt op een object voor 1 uur.\n• Maak een niet-magisch speeltje of illusoir beeld dat in je hand past en 1 ronde duurt.",
+    upcast: null
+  },
+  "Fire Bolt": {
+    school: "Evocatie", level: "Cantrip", castTime: "1 actie", range: "120 ft.",
+    components: "V, S", duration: "Ogenblikkelijk",
+    description: "Je slingert een vuurvonk naar een wezen of object binnen bereik en maakt een aanval met spreukafstand (+5). Bij een treffer neemt het doel 1d10 vuurschade. Brandbaar materiaal dat wordt geraakt en niet gedragen wordt, vat vlam.",
+    upcast: "De schade stijgt naar 2d10 op de 5e levelrang, 3d10 op de 11e, en 4d10 op de 17e."
+  },
+  "Mage Hand": {
+    school: "Bezwering", level: "Cantrip", castTime: "1 actie", range: "30 ft.",
+    components: "V, S", duration: "1 minuut",
+    description: "Een spookachtige, drijvende hand verschijnt op een punt binnen bereik. Je kunt hem als actie besturen om: lichte objecten te manipuleren, deuren/lades/containers te openen of sluiten, items te bewaren of ophalen, of een fles leeg te gieten. De hand kan geen aanvallen doen, geen magische items activeren, en niet meer dan 10 pond dragen. Verdwijnt als je meer dan 30 ft. wegloopt.",
+    upcast: null
+  },
+  "Minor Illusion": {
+    school: "Illusie", level: "Cantrip", castTime: "1 actie", range: "30 ft.",
+    components: "S, M (een stukje schapenwol)", duration: "1 minuut",
+    description: "Je creëert een geluid of beeld van een object binnen bereik.\n• Geluid: elk gewenst geluid van je keuze, van gefluister tot schreeuw.\n• Beeld: een object van max. 5 ft. in alle richtingen. Het beeld heeft geen geluid, geur, etc. Een wezen dat het object aanraakt of onderzoekt (INT vs. Spell Save DC 13) doorziet de illusie.",
+    upcast: null
+  },
+  "Chromatic Orb": {
+    school: "Evocatie", level: "1e niveau", castTime: "1 actie", range: "90 ft.",
+    components: "V, S, M (een diamant van minimaal 50 gp)", duration: "Ogenblikkelijk",
+    description: "Je slingert een bol van 10 cm doorsnee energetisch materiaal naar een wezen dat je binnen bereik kunt zien. Kies het type: zuur, kou, vuur, bliksem, gif of donder — en maak een aanval met spreukafstand (+5). Bij een treffer neemt het doel 3d8 schade van het gekozen type.",
+    upcast: "Wanneer je deze spreuk werpt met een sleuf van 2e niveau of hoger, stijgt de schade met 1d8 per sleutniveau boven het 1e."
+  },
+  "Magic Missile": {
+    school: "Evocatie", level: "1e niveau", castTime: "1 actie", range: "120 ft.",
+    components: "V, S", duration: "Ogenblikkelijk",
+    description: "Je creëert drie gloeiende pijlen magische kracht. Elke pijl treft een wezen naar keuze dat je kunt zien binnen bereik. Een pijl deelt 1d4+1 krachtsschade. De pijlen vliegen allemaal tegelijk, en je kunt ze op één of meerdere doelen richten. Magic Missile mist nooit.",
+    upcast: "Wanneer je deze spreuk werpt met een sleuf van 2e niveau of hoger, krijg je één extra pijl per sleutniveau boven het 1e."
+  },
+  "Shield": {
+    school: "Abjuratie", level: "1e niveau", castTime: "1 reactie (als je geraakt wordt of door Magic Missile wordt aangevallen)", range: "Zelf",
+    components: "V, S", duration: "1 ronde",
+    description: "Een onzichtbaar barrière van magische kracht verschijnt en beschermt je. Tot het begin van je volgende beurt heb je +5 op AC, ook tegen de aanval die deze reactie triggerde. Je neemt ook geen schade van Magic Missile.",
+    upcast: null
+  },
+  "Burning Hands": {
+    school: "Evocatie", level: "1e niveau", castTime: "1 actie", range: "Zelf (kegel van 15 ft.)",
+    components: "V, S", duration: "Ogenblikkelijk",
+    description: "Terwijl je je duimen aan elkaar houdt en je vingers spreidt, spuit een dunne waaier van vlammen uit je uitgestrekte vingertoppen. Elk wezen in een kegel van 15 ft. moet een Dexterity reddingworp maken (DC 13). Bij een mislukking neemt het wezen 3d6 vuurschade; bij een succesvolle worp de helft.",
+    upcast: "Wanneer je deze spreuk werpt met een sleuf van 2e niveau of hoger, stijgt de schade met 1d6 per sleutniveau boven het 1e."
+  },
+  "Witch Bolt": {
+    school: "Evocatie", level: "1e niveau", castTime: "1 actie", range: "60 ft.",
+    components: "V, S, M (een takje van een boom dat door bliksem is getroffen)", duration: "Concentratie, tot 1 minuut",
+    description: "Een straal blauwwit bliksem schiet naar een wezen binnen bereik. Maak een aanval met spreukafstand (+5). Bij een treffer neemt het doel 2d12 bliksemschade.\n\nZolang de spreuk actief is, kun je als actie automatisch 1d12 bliksemschade toedienen aan het doel. De spreuk eindigt als je concentratie breekt, de actie niet gebruikt, of het doel buiten bereik gaat.",
+    upcast: "Wanneer je deze spreuk werpt met een sleuf van 2e niveau of hoger, stijgt de initiële schade met 1d12 per sleutniveau boven het 1e."
+  },
+  "Detect Thoughts": {
+    school: "Divination", level: "2e niveau", castTime: "1 actie", range: "Zelf",
+    components: "V, S, M (een koperen munt)", duration: "Concentratie, tot 1 minuut",
+    description: "Zolang de spreuk duurt kun je de gedachten van bepaalde wezens lezen.\n\n• Oppervlakkige gedachten (wat het wezen nu denkt) zijn direct leesbaar voor wezens binnen 30 ft.\n• Voor diepere gedachten moet het wezen een Wisdom reddingworp maken (DC 13). Bij een mislukking krijg je inzicht in zijn redenering en emoties. Het wezen weet dat zijn gedachten worden gelezen.",
+    upcast: null
+  },
+  "Misty Step": {
+    school: "Bezwering", level: "2e niveau — via Fey Step (1/Short Rest)", castTime: "1 bonus actie", range: "Zelf",
+    components: "V", duration: "Ogenblikkelijk",
+    description: "Omhuld door een wolk van sluierachtige mist teleporteer je tot 30 ft. naar een onbezet vakje dat je kunt zien.\n\nFinn gebruikt dit via haar Eladrin Fey Step vermogen — één keer per Short Rest, gratis zonder spreuksleuf.",
+    upcast: null
+  }
+};
+
+// ── State ─────────────────────────────────────────────────────
+let state = {};
+let activeFilter = 'all';
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('finn_v2');
+    if (s) { state = JSON.parse(s); return true; }
+  } catch(e) {}
+  return false;
+}
+function saveState() {
+  state.version = '2.0';
+  localStorage.setItem('finn_v2', JSON.stringify(state));
+}
+function loadFallbackData() {
+  state = JSON.parse(JSON.stringify(FINN_DEFAULT));
+  saveState(); startApp();
+}
+
+// ── PDF Parsing ───────────────────────────────────────────────
+async function handlePDFUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const status = document.getElementById('parseStatus');
+  status.textContent = 'PDF wordt verwerkt...';
+  try {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const fields = {};
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const annots = await page.getAnnotations();
+      for (const a of annots) if (a.fieldName && a.fieldValue !== undefined) fields[a.fieldName] = a.fieldValue;
+    }
+    state = JSON.parse(JSON.stringify(FINN_DEFAULT));
+    const n = fields['CharacterName'] || fields['Character Name'];
+    if (n) state.name = n;
+    const hpMax = parseInt(fields['HPMax'] || fields['HP Max']);
+    if (!isNaN(hpMax) && hpMax > 0) { state.maxHP = hpMax; state.currentHP = hpMax; }
+    const statMap = { STR:['STR','Strength'], DEX:['DEX','Dexterity'], CON:['CON','Constitution'], INT:['INT','Intelligence'], WIS:['WIS','Wisdom'], CHA:['CHA','Charisma'] };
+    for (const [k, keys] of Object.entries(statMap)) for (const key of keys) { const v = parseInt(fields[key]); if (!isNaN(v) && v > 0) { state.stats[k] = v; break; } }
+    const count = Object.keys(fields).length;
+    status.textContent = count ? `${count} velden gevonden.` : 'Geen AcroForm velden — standaard data geladen.';
+    saveState(); setTimeout(() => startApp(), 500);
+  } catch(err) {
+    status.textContent = 'PDF kon niet worden gelezen — standaard data geladen.';
+    loadFallbackData();
+  }
+}
+
+// ── App ───────────────────────────────────────────────────────
+function startApp() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderAll();
+}
+
+function renderAll() {
+  document.getElementById('charName').textContent = state.name || 'Finn';
+  document.getElementById('charSub').textContent =
+    `Level ${state.level} ${state.class} · ${state.race}${state.background ? ' · ' + state.background : ''} · AC ${state.ac || 12} · Spell Save DC ${state.spellSaveDC || 13} · Aanval +${state.spellAttackBonus || 5}`;
+  renderStats();
+  renderHP();
+  renderSP();
+  renderSlots();
+  renderSpells();
+  renderTides();
+}
+
+function renderStats() {
+  const row = document.getElementById('statsRow');
+  row.innerHTML = '';
+  const mod = v => { const m = Math.floor((v - 10) / 2); return (m >= 0 ? '+' : '') + m; };
+  for (const [k, v] of Object.entries(state.stats)) {
+    row.innerHTML += `<div class="stat-chip"><div class="stat-val">${v}</div><div class="stat-mod">${mod(v)}</div><div class="stat-key">${k}</div></div>`;
+  }
+}
+
+function renderHP() {
+  const cur = state.currentHP, max = state.maxHP;
+  document.getElementById('currentHP').textContent = cur;
+  document.getElementById('maxHP').textContent = max;
+  const pct = Math.max(0, Math.min(100, (cur / max) * 100));
+  const fill = document.getElementById('hpFill');
+  fill.style.width = pct + '%';
+  fill.style.backgroundColor = pct > 60 ? 'var(--mint-500)' : pct > 30 ? '#E8A020' : 'var(--rose-500)';
+}
+
+function changeHP(d) {
+  state.currentHP = Math.max(0, Math.min(state.maxHP, state.currentHP + d));
+  saveState(); renderHP();
+}
+
+function renderSP() {
+  const row = document.getElementById('spRow');
+  row.innerHTML = '';
+  for (let i = 0; i < state.sorceryPoints.max; i++) {
+    const on = i < state.sorceryPoints.current;
+    const pip = document.createElement('button');
+    pip.className = 'sp-pip ' + (on ? 'on' : 'off');
+    pip.title = on ? 'Klik om te verbruiken' : 'Klik om te herstellen';
+    pip.onclick = () => {
+      state.sorceryPoints.current = on
+        ? Math.max(0, state.sorceryPoints.current - 1)
+        : Math.min(state.sorceryPoints.max, state.sorceryPoints.current + 1);
+      saveState(); renderSP();
+    };
+    if (on) {
+      pip.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="12" r="5"/></svg>`;
+    }
+    row.appendChild(pip);
+  }
+}
+
+function renderSlots() {
+  for (const lvl of [1, 2]) {
+    const row = document.getElementById('slots' + lvl);
+    row.innerHTML = '';
+    const slot = state.spellSlots[lvl];
+    for (let i = 0; i < slot.max; i++) {
+      const on = i < slot.current;
+      const pip = document.createElement('button');
+      pip.className = 'slot-pip ' + (on ? 'on' : 'off');
+      pip.title = on ? 'Klik om te verbruiken' : 'Klik om te herstellen';
+      pip.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--purple-500)" stroke="none"><circle cx="12" cy="12" r="6"/></svg>`;
+      pip.onclick = () => {
+        state.spellSlots[lvl].current = on
+          ? Math.max(0, slot.current - 1)
+          : Math.min(slot.max, slot.current + 1);
+        saveState(); renderSlots();
+      };
+      row.appendChild(pip);
+    }
+  }
+}
+
+function renderTides() {
+  const on = state.tidesAvailable;
+  const toggle = document.getElementById('tidesToggle');
+  const thumb  = document.getElementById('tidesThumb');
+  toggle.style.background = on ? 'var(--purple-500)' : 'var(--border-2)';
+  thumb.style.left = on ? '25px' : '3px';
+  document.getElementById('tidesStatus').textContent = on ? 'Beschikbaar' : 'Verbruikt — surge kans actief';
+  document.getElementById('surgeBtn').classList.toggle('tides-active', !on);
+}
+
+function toggleTides() {
+  state.tidesAvailable = !state.tidesAvailable;
+  saveState(); renderTides();
+}
+
+// ── Spells ────────────────────────────────────────────────────
+function setFilter(f) {
+  activeFilter = f;
+  document.querySelectorAll('#filterGroup .filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === f);
+  });
+  renderSpells();
+}
+
+function renderSpells() {
+  const list = document.getElementById('spellList');
+  list.innerHTML = '';
+
+  const spells = state.spells.filter(sp => {
+    if (activeFilter === 'all') return true;
+    if (activeFilter === 'Bonus Actie') return sp.action.toLowerCase().includes('bonus');
+    if (activeFilter === 'Reactie')     return sp.action.toLowerCase().includes('reactie');
+    if (activeFilter === 'Actie')       return sp.action === 'Actie';
+    return true;
+  });
+
+  if (spells.length === 0) {
+    list.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--text-3);font-size:0.85rem;">Geen spreuken voor dit actietype.</div>';
+    return;
+  }
+
+  for (const sp of spells) {
+    const hasDmg  = sp.damage && sp.damage !== '-';
+    const hasInfo = !!SPELL_INFO[sp.name];
+
+    const badgeClass = sp.action.includes('Bonus')   ? 'badge-bonus'
+                     : sp.action.includes('Reactie') ? 'badge-reactie'
+                     : 'badge-action';
+
+    const meta = [sp.type, hasDmg ? sp.damage : null, sp.hit ? 'Aanval ' + sp.hit : null, sp.save ? 'Save: ' + sp.save : null]
+                 .filter(Boolean).join('  ·  ');
+
+    const card = document.createElement('div');
+    card.className = 'spell-card' + (hasInfo ? ' clickable' : '');
+    if (hasInfo) card.onclick = () => openSpellModal(sp.name);
+
+    // Left
+    const left = document.createElement('div');
+    left.className = 'spell-card-left';
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'spell-name';
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = sp.name;
+    nameRow.appendChild(nameSpan);
+
+    const badge = document.createElement('span');
+    badge.className = 'action-badge ' + badgeClass;
+    badge.textContent = sp.action;
+    nameRow.appendChild(badge);
+
+    if (hasInfo) {
+      const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      icon.setAttribute('width', '13'); icon.setAttribute('height', '13');
+      icon.setAttribute('viewBox', '0 0 24 24'); icon.setAttribute('fill', 'none');
+      icon.setAttribute('stroke', 'currentColor'); icon.setAttribute('stroke-width', '2');
+      icon.setAttribute('stroke-linecap', 'round'); icon.setAttribute('stroke-linejoin', 'round');
+      icon.className.baseVal = 'info-icon';
+      icon.innerHTML = '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>';
+      nameRow.appendChild(icon);
+    }
+
+    left.appendChild(nameRow);
+
+    const metaDiv = document.createElement('div');
+    metaDiv.className = 'spell-meta';
+    metaDiv.textContent = (sp.cost ? sp.cost + '  ·  ' : 'cantrip  ·  ') + meta;
+    left.appendChild(metaDiv);
+
+    card.appendChild(left);
+
+    // Roll button
+    if (hasDmg) {
+      const rollBtn = document.createElement('button');
+      rollBtn.className = 'roll-btn';
+      rollBtn.onclick = (e) => { e.stopPropagation(); rollDice(sp.name, sp.damage); };
+
+      const diceSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      diceSvg.setAttribute('width', '12'); diceSvg.setAttribute('height', '12');
+      diceSvg.setAttribute('viewBox', '0 0 24 24'); diceSvg.setAttribute('fill', 'none');
+      diceSvg.setAttribute('stroke', 'currentColor'); diceSvg.setAttribute('stroke-width', '2');
+      diceSvg.setAttribute('stroke-linecap', 'round'); diceSvg.setAttribute('stroke-linejoin', 'round');
+      diceSvg.innerHTML = '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>';
+      rollBtn.appendChild(diceSvg);
+      rollBtn.appendChild(document.createTextNode(' Rol'));
+      card.appendChild(rollBtn);
+    }
+
+    list.appendChild(card);
+  }
+}
+
+// ── Wild Magic ────────────────────────────────────────────────
+function rollWildMagic() {
+  const roll = Math.floor(Math.random() * 20) + 1;
+  document.getElementById('lastRoll').textContent = `d20 = ${roll}${roll === 1 ? ' — Surge!' : ''}`;
+  const surge = roll === 1 || (!state.tidesAvailable && roll <= 2);
+  if (surge) {
+    const d100 = Math.floor(Math.random() * 100) + 1;
+    const idx  = Math.min(Math.floor((d100 - 1) / 2), SURGE_RESULTS.length - 1);
+    const entry = SURGE_RESULTS[idx];
+    const disp  = d100 === 100 ? '00' : String(d100).padStart(2, '0');
+    document.getElementById('surgeD100').textContent = `d100 = ${disp}  ·  tabelregel ${entry.roll}`;
+    document.getElementById('surgeText').textContent = entry.text;
+    document.getElementById('surgeModal').classList.add('open');
+    if (!state.tidesAvailable) { state.tidesAvailable = true; saveState(); }
+  }
+}
+function closeSurge() {
+  document.getElementById('surgeModal').classList.remove('open');
+  renderTides();
+}
+
+function openSurgeTable() {
+  const body = document.getElementById('surgeTableBody');
+  body.innerHTML = SURGE_RESULTS.map(e =>
+    `<div class="surge-table-row"><div class="surge-roll-num">${e.roll}</div><div class="t-body">${e.text}</div></div>`
+  ).join('');
+  document.getElementById('surgeTableModal').classList.add('open');
+}
+function closeSurgeTable() { document.getElementById('surgeTableModal').classList.remove('open'); }
+
+// ── Spell Modal ───────────────────────────────────────────────
+function openSpellModal(name) {
+  const info = SPELL_INFO[name];
+  if (!info) return;
+  document.getElementById('spellModalTitle').textContent = name;
+  document.getElementById('spellModalSchool').textContent = `${info.school}  ·  ${info.level}`;
+
+  const statDefs = [
+    { icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', label: 'Wierptijd', val: info.castTime },
+    { icon: '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>', label: 'Bereik', val: info.range },
+    { icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', label: 'Componenten', val: info.components },
+    { icon: '<path d="M5 3h14M5 21h14M17 3v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V3M17 21v-4a5 5 0 0 1-5-5 5 5 0 0 1-5 5v4"/>', label: 'Duur', val: info.duration },
+  ];
+  document.getElementById('spellModalStats').innerHTML = statDefs.map(s =>
+    `<div class="modal-stat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg><div><div class="modal-stat-label">${s.label}</div><div class="modal-stat-val">${s.val}</div></div></div>`
+  ).join('');
+
+  document.getElementById('spellModalDesc').innerHTML = info.description.replace(/\n/g, '<br>');
+  const up = document.getElementById('spellModalUpcast');
+  if (info.upcast) { up.style.display = 'block'; up.innerHTML = `<strong>Op hoger niveau:</strong> ${info.upcast}`; }
+  else { up.style.display = 'none'; }
+  document.getElementById('spellModal').classList.add('open');
+}
+function closeSpellModal() { document.getElementById('spellModal').classList.remove('open'); }
+
+// ── Dice ──────────────────────────────────────────────────────
+function rollDice(name, expr) {
+  const result = evalDice(expr);
+  document.getElementById('toastSpell').textContent = name;
+  document.getElementById('toastResult').textContent = result + ' ';
+  document.getElementById('toastDice').textContent = '(' + expr + ')';
+  const toast = document.getElementById('toast');
+  toast.style.display = 'block';
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => toast.style.display = 'none', 3200);
+}
+
+function evalDice(expr) {
+  expr = expr.replace(/×|x/gi, '*');
+  let total = 0;
+  for (const part of expr.split('+')) {
+    const mul = part.match(/(\d+)d(\d+)\*(\d+)/);
+    if (mul) { const [,n,s,m] = mul.map(Number); for (let i=0;i<n*m;i++) total += Math.floor(Math.random()*s)+1; continue; }
+    const d = part.match(/(\d+)d(\d+)/);
+    if (d) { const [,n,s] = d.map(Number); for (let i=0;i<n;i++) total += Math.floor(Math.random()*s)+1; continue; }
+    // handle (XdY+Z)*N style
+    const grp = part.match(/\((\d+)d(\d+)\+(\d+)\)/);
+    if (grp) {
+      // e.g. 3x(1d4+1) — handled by caller splitting on x first, but fallback:
+      const [,n,s,b] = grp.map(Number); for (let i=0;i<n;i++) total += Math.floor(Math.random()*s)+1+b; continue;
+    }
+    total += parseInt(part) || 0;
+  }
+  return total;
+}
+
+// ── Long Rest ─────────────────────────────────────────────────
+function longRest() {
+  state.currentHP = state.maxHP;
+  state.sorceryPoints.current = state.sorceryPoints.max;
+  state.spellSlots[1].current = state.spellSlots[1].max;
+  state.spellSlots[2].current = state.spellSlots[2].max;
+  state.tidesAvailable = true;
+  saveState(); renderAll();
+  document.getElementById('toastSpell').textContent = 'Long Rest';
+  document.getElementById('toastResult').textContent = 'Voltooid ';
+  document.getElementById('toastDice').textContent = '— alle resources hersteld';
+  const toast = document.getElementById('toast');
+  toast.style.display = 'block';
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => toast.style.display = 'none', 2500);
+}
+
+// ── Reset ─────────────────────────────────────────────────────
+function resetToLanding() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('parseStatus').textContent = '';
+  document.getElementById('pdfInput').value = '';
+}
+
+
+// ── Skills tab ────────────────────────────────────────────────
+let activeTab = 'play';
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-play').classList.toggle('active', tab === 'play');
+  document.getElementById('tab-skills').classList.toggle('active', tab === 'skills');
+  document.getElementById('pane-play').style.display   = tab === 'play'   ? '' : 'none';
+  document.getElementById('pane-skills').style.display = tab === 'skills' ? '' : 'none';
+  if (tab === 'skills') renderSkills();
+}
+
+const SKILLS_DEF = [
+  { name: 'Acrobatics',     attr: 'DEX', proficient: false, expertise: false },
+  { name: 'Animal Handling',attr: 'WIS', proficient: false, expertise: false },
+  { name: 'Arcana',         attr: 'INT', proficient: true,  expertise: false },
+  { name: 'Athletics',      attr: 'STR', proficient: false, expertise: false },
+  { name: 'Deception',      attr: 'CHA', proficient: false, expertise: false },
+  { name: 'History',        attr: 'INT', proficient: true,  expertise: false },
+  { name: 'Insight',        attr: 'WIS', proficient: true,  expertise: false },
+  { name: 'Intimidation',   attr: 'CHA', proficient: false, expertise: false },
+  { name: 'Investigation',  attr: 'INT', proficient: false, expertise: false },
+  { name: 'Medicine',       attr: 'WIS', proficient: false, expertise: false },
+  { name: 'Nature',         attr: 'INT', proficient: false, expertise: false },
+  { name: 'Perception',     attr: 'WIS', proficient: true,  expertise: false },
+  { name: 'Performance',    attr: 'CHA', proficient: false, expertise: false },
+  { name: 'Persuasion',     attr: 'CHA', proficient: true,  expertise: false },
+  { name: 'Religion',       attr: 'INT', proficient: false, expertise: false },
+  { name: 'Sleight of Hand',attr: 'DEX', proficient: false, expertise: false },
+  { name: 'Stealth',        attr: 'DEX', proficient: false, expertise: false },
+  { name: 'Survival',       attr: 'WIS', proficient: false, expertise: false },
+];
+
+// Saving throw proficiencies for Wild Magic Sorcerer (CON + CHA)
+const SAVE_PROFS = new Set(['CON', 'CHA']);
+
+function abilityMod(score) { return Math.floor((score - 10) / 2); }
+function fmtBonus(n) { return (n >= 0 ? '+' : '') + n; }
+
+function renderSkills() {
+  const stats = state.stats;
+  const prof  = state.proficiencyBonus || 2;
+
+  // ── Saving Throws ──
+  const savesEl = document.getElementById('savesGrid');
+  savesEl.innerHTML = '';
+  const saveAttrs = ['STR','DEX','CON','INT','WIS','CHA'];
+  for (const attr of saveAttrs) {
+    const base = abilityMod(stats[attr]);
+    const isProficient = SAVE_PROFS.has(attr);
+    const total = base + (isProficient ? prof : 0);
+    const chip = document.createElement('div');
+    chip.className = 'save-chip' + (isProficient ? ' proficient' : '');
+    chip.innerHTML = `
+      <div class="skill-pip ${isProficient ? 'proficient' : ''}"></div>
+      <div class="save-chip-label">${attr}</div>
+      <div class="save-chip-val">${fmtBonus(total)}</div>
+    `;
+    savesEl.appendChild(chip);
+  }
+
+  // ── Skills ──
+  const grid = document.getElementById('skillsGrid');
+  grid.innerHTML = '';
+  for (const sk of SKILLS_DEF) {
+    const base  = abilityMod(stats[sk.attr]);
+    const bonus = sk.expertise  ? base + prof * 2
+                : sk.proficient ? base + prof
+                : base;
+    const rowClass = sk.expertise ? 'skill-row expertise'
+                   : sk.proficient ? 'skill-row proficient'
+                   : 'skill-row';
+    const pipClass = sk.expertise ? 'expertise' : sk.proficient ? 'proficient' : '';
+
+    const row = document.createElement('div');
+    row.className = rowClass;
+    row.innerHTML = `
+      <div class="skill-pip ${pipClass}"></div>
+      <div class="skill-name">${sk.name}</div>
+      <div class="skill-attr">${sk.attr}</div>
+      <div class="skill-bonus">${fmtBonus(bonus)}</div>
+    `;
+    grid.appendChild(row);
+  }
+
+  // ── Passive scores ──
+  const passEl = document.getElementById('passiveScores');
+  const perceptionMod = abilityMod(stats.WIS) + (SKILLS_DEF.find(s=>s.name==='Perception').proficient ? prof : 0);
+  const insightMod    = abilityMod(stats.WIS) + (SKILLS_DEF.find(s=>s.name==='Insight').proficient    ? prof : 0);
+  const investMod     = abilityMod(stats.INT) + (SKILLS_DEF.find(s=>s.name==='Investigation').proficient ? prof : 0);
+  const passives = [
+    { label: 'Passive Perception',     val: 10 + perceptionMod },
+    { label: 'Passive Insight',        val: 10 + insightMod    },
+    { label: 'Passive Investigation',  val: 10 + investMod     },
+  ];
+  passEl.innerHTML = passives.map(p => `
+    <div class="passive-row">
+      <div class="passive-label">${p.label}</div>
+      <div class="passive-val">${p.val}</div>
+    </div>
+  `).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  if (loadState() && state.name && state.version === '2.0') {
+    startApp();
+  }
+
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--purple-500)'; });
+  zone.addEventListener('dragleave', () => zone.style.borderColor = '');
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.style.borderColor = '';
+    const f = e.dataTransfer.files[0];
+    if (f?.type === 'application/pdf') handlePDFUpload({ target: { files: [f] } });
+  });
+
+  // Close modals on Escape
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeSurge(); closeSurgeTable(); closeSpellModal();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
