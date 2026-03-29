@@ -56,7 +56,7 @@ html { font-size: 16px; background-color: #F5F3FF; }
 body {
 font-family: var(–font-body);
 background-color: var(–bg);
-color: var(–text-1);
+color: #1E1A3C;
 min-height: 100vh;
 line-height: 1.5;
 -webkit-font-smoothing: antialiased;
@@ -74,9 +74,9 @@ pointer-events: none; z-index: 0;
 }
 
 /* ── Typography ─────────────────────────────────────────────── */
-.t-label   { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(–text-3); }
-.t-body    { font-size: 0.875rem; color: var(–text-2); line-height: 1.6; }
-.t-small   { font-size: 0.75rem; color: var(–text-3); }
+.t-label   { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8C88AA; }
+.t-body    { font-size: 0.875rem; color: #4A4570; line-height: 1.6; }
+.t-small   { font-size: 0.75rem; color: #8C88AA; }
 .t-display { font-family: var(–font-display); }
 
 /* ── Layout ─────────────────────────────────────────────────── */
@@ -98,10 +98,10 @@ padding: 24px 20px 48px;
 
 /* ── Cards ──────────────────────────────────────────────────── */
 .card {
-background: var(–surface);
-border: 1px solid var(–border);
-border-radius: var(–radius-lg);
-box-shadow: var(–shadow-sm);
+background: #ffffff;
+border: 1px solid #E8E4F8;
+border-radius: 20px;
+box-shadow: 0 1px 3px rgba(91,80,160,0.08), 0 1px 2px rgba(91,80,160,0.04);
 }
 .card-p { padding: 20px; }
 
@@ -116,12 +116,12 @@ flex-wrap: wrap;
 font-family: var(–font-display);
 font-size: 1.75rem;
 font-weight: 600;
-color: var(–text-1);
+color: #1E1A3C;
 line-height: 1.1;
 }
 .char-sub {
 font-size: 0.82rem;
-color: var(–text-3);
+color: #8C88AA;
 margin-top: 4px;
 }
 .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -149,10 +149,10 @@ box-shadow: 0 2px 8px rgba(139,127,212,0.35);
 
 .btn-ghost {
 background: transparent;
-color: var(–text-3);
-border: 1px solid var(–border-2);
+color: #8C88AA;
+border: 1px solid #D4CEF0;
 }
-.btn-ghost:hover { background: var(–purple-100); color: var(–text-2); border-color: var(–purple-300); }
+.btn-ghost:hover { background: var(–purple-100); color: #4A4570; border-color: var(–purple-300); }
 
 .btn-success {
 background: var(–mint-100);
@@ -164,19 +164,23 @@ border: 1px solid rgba(82,201,122,0.3);
 /* Wild Magic Button */
 .btn-surge {
 width: 100%;
-justify-content: center;
-font-family: var(–font-display);
+display: -webkit-box; display: -ms-flexbox; display: flex;
+-webkit-box-align: center; -ms-flex-align: center; align-items: center;
+-webkit-box-pack: center; -ms-flex-pack: center; justify-content: center;
+font-family: ‘Crimson Pro’, ‘Georgia’, serif;
 font-size: 1.05rem;
 font-weight: 600;
 padding: 14px 24px;
-border-radius: var(–radius-md);
-background: linear-gradient(135deg, var(–purple-500) 0%, #7060CC 100%);
-color: #fff;
+border-radius: 12px;
+background: #8B7FD4;
+background: -webkit-linear-gradient(315deg, #8B7FD4 0%, #7060CC 100%);
+background: linear-gradient(135deg, #8B7FD4 0%, #7060CC 100%);
+color: #ffffff;
 border: none;
 box-shadow: 0 4px 20px rgba(139,127,212,0.4);
 cursor: pointer;
 position: relative; overflow: hidden;
-transition: all 0.2s ease;
+-webkit-transition: all 0.2s ease; transition: all 0.2s ease;
 letter-spacing: 0.01em;
 }
 .btn-surge::after {
@@ -198,7 +202,11 @@ animation: gold-pulse 2.2s ease-in-out infinite;
 }
 
 /* ── Grid ───────────────────────────────────────────────────── */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-2 {
+display: -webkit-box; display: -ms-flexbox; display: flex;
+-ms-flex-wrap: wrap; flex-wrap: wrap; gap: 14px;
+}
+.grid-2 > * { -webkit-box-flex: 1; -ms-flex: 1 1 280px; flex: 1 1 280px; min-width: 0; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 @media (max-width: 580px) {
 .grid-2 { grid-template-columns: 1fr; }
@@ -206,19 +214,20 @@ animation: gold-pulse 2.2s ease-in-out infinite;
 
 /* ── Stats Bar ──────────────────────────────────────────────── */
 .stats-row {
-display: flex; gap: 8px; flex-wrap: wrap;
+display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto;
+padding-bottom: 4px; -webkit-overflow-scrolling: touch;
 }
 .stat-chip {
 display: flex; flex-direction: column; align-items: center;
-background: var(–surface-2);
-border: 1px solid var(–border);
+background: #F9F8FF;
+border: 1px solid #E8E4F8;
 border-radius: var(–radius-md);
-padding: 10px 14px; min-width: 56px;
+padding: 10px 14px; min-width: 60px; flex-shrink: 0;
 gap: 2px;
 }
-.stat-val { font-size: 1.2rem; font-weight: 700; color: var(–text-1); line-height: 1; }
+.stat-val { font-size: 1.2rem; font-weight: 700; color: #1E1A3C; line-height: 1; }
 .stat-mod { font-size: 0.7rem; font-weight: 600; color: var(–purple-500); }
-.stat-key { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-3); }
+.stat-key { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8C88AA; }
 
 /* ── HP Tracker ─────────────────────────────────────────────── */
 .hp-block {
@@ -228,10 +237,10 @@ margin: 12px 0 10px;
 .hp-num {
 font-family: var(–font-display);
 font-size: 2.8rem; font-weight: 600;
-color: var(–text-1); line-height: 1;
+color: #1E1A3C; line-height: 1;
 flex: 1; text-align: center;
 }
-.hp-max { font-size: 0.75rem; color: var(–text-3); text-align: center; }
+.hp-max { font-size: 0.75rem; color: #8C88AA; text-align: center; }
 
 .hp-btn {
 width: 44px; height: 44px; border-radius: 50%;
@@ -268,7 +277,7 @@ background: var(–purple-500);
 border-color: var(–purple-500);
 box-shadow: 0 2px 10px rgba(139,127,212,0.4);
 }
-.sp-pip.off { background: var(–surface-2); }
+.sp-pip.off { background: #F9F8FF; }
 .sp-pip:hover { transform: scale(1.18) rotate(8deg); }
 
 /* ── Spell Slots ─────────────────────────────────────────────── */
@@ -294,8 +303,8 @@ border-color: var(–purple-300);
 display: flex; align-items: center; justify-content: space-between;
 margin-bottom: 16px;
 }
-.tides-label { font-size: 0.82rem; font-weight: 600; color: var(–text-2); }
-.tides-status { font-size: 0.7rem; color: var(–text-3); margin-top: 1px; }
+.tides-label { font-size: 0.82rem; font-weight: 600; color: #4A4570; }
+.tides-status { font-size: 0.7rem; color: #8C88AA; margin-top: 1px; }
 
 .toggle {
 width: 48px; height: 26px; border-radius: 13px;
@@ -312,12 +321,12 @@ transition: left 0.25s cubic-bezier(0.34,1.56,0.64,1);
 }
 .last-roll {
 margin-top: 10px;
-font-size: 0.75rem; color: var(–text-3);
+font-size: 0.75rem; color: #8C88AA;
 text-align: center; min-height: 18px;
 }
 .table-link {
 display: flex; align-items: center; gap: 5px; justify-content: center;
-margin-top: 8px; font-size: 0.72rem; font-weight: 500; color: var(–text-3);
+margin-top: 8px; font-size: 0.72rem; font-weight: 500; color: #8C88AA;
 background: none; border: none; cursor: pointer;
 font-family: var(–font-body);
 transition: color 0.15s;
@@ -331,13 +340,13 @@ display: inline-flex; align-items: center; gap: 5px;
 font-family: var(–font-body);
 font-size: 0.73rem; font-weight: 600;
 padding: 5px 12px; border-radius: 50px;
-border: 1px solid var(–border-2);
-background: transparent; color: var(–text-3);
+border: 1px solid #D4CEF0;
+background: transparent; color: #8C88AA;
 cursor: pointer; transition: all 0.15s ease;
 white-space: nowrap;
 }
 .filter-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
-.filter-btn:hover { border-color: var(–purple-300); color: var(–text-2); background: var(–purple-100); }
+.filter-btn:hover { border-color: var(–purple-300); color: #4A4570; background: var(–purple-100); }
 .filter-btn.active {
 background: var(–purple-500); color: #fff;
 border-color: transparent;
@@ -350,7 +359,7 @@ box-shadow: 0 2px 8px rgba(139,127,212,0.3);
 display: flex; align-items: center; gap: 10px;
 padding: 10px 12px; border-radius: var(–radius-md);
 border: 1px solid transparent;
-background: var(–surface-2);
+background: #F9F8FF;
 transition: all 0.15s ease;
 cursor: default;
 }
@@ -359,10 +368,10 @@ cursor: default;
 
 .spell-card-left { flex: 1; min-width: 0; }
 .spell-name {
-font-size: 0.875rem; font-weight: 600; color: var(–text-1);
+font-size: 0.875rem; font-weight: 600; color: #1E1A3C;
 display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
 }
-.spell-meta { font-size: 0.72rem; color: var(–text-3); margin-top: 2px; }
+.spell-meta { font-size: 0.72rem; color: #8C88AA; margin-top: 2px; }
 
 .action-badge {
 font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
@@ -373,7 +382,7 @@ white-space: nowrap; flex-shrink: 0;
 .badge-bonus   { background: var(–gold-100); color: #8A6800; border: 1px solid rgba(212,160,23,0.25); }
 .badge-reactie { background: var(–mint-100); color: #2A7A48; border: 1px solid rgba(82,201,122,0.25); }
 
-.info-icon { color: var(–text-3); flex-shrink: 0; transition: color 0.15s; }
+.info-icon { color: #8C88AA; flex-shrink: 0; transition: color 0.15s; }
 .spell-card:hover .info-icon { color: var(–purple-500); }
 
 .roll-btn {
@@ -381,8 +390,8 @@ display: inline-flex; align-items: center; gap: 5px;
 font-family: var(–font-body);
 font-size: 0.72rem; font-weight: 600;
 padding: 5px 10px; border-radius: var(–radius-sm);
-background: var(–surface); border: 1px solid var(–border-2);
-color: var(–text-2); cursor: pointer;
+background: var(–surface); border: 1px solid #D4CEF0;
+color: #4A4570; cursor: pointer;
 transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0;
 }
 .roll-btn:hover { background: var(–purple-100); border-color: var(–purple-300); color: var(–purple-700); transform: scale(1.04); }
@@ -418,17 +427,17 @@ padding: 24px 24px 0;
 .modal-title {
 font-family: var(–font-display);
 font-size: 1.4rem; font-weight: 600;
-color: var(–text-1);
+color: #1E1A3C;
 }
 .modal-body { padding: 16px 24px 24px; }
 .modal-close {
 width: 32px; height: 32px; border-radius: 50%;
-border: none; background: var(–surface-2);
-color: var(–text-3); cursor: pointer;
+border: none; background: #F9F8FF;
+color: #8C88AA; cursor: pointer;
 display: flex; align-items: center; justify-content: center;
 flex-shrink: 0; transition: all 0.15s;
 }
-.modal-close:hover { background: var(–purple-100); color: var(–text-1); }
+.modal-close:hover { background: var(–purple-100); color: #1E1A3C; }
 
 .modal-stats-grid {
 display: grid; grid-template-columns: 1fr 1fr;
@@ -436,15 +445,15 @@ gap: 8px; margin-bottom: 16px;
 }
 .modal-stat {
 display: flex; align-items: flex-start; gap: 8px;
-background: var(–surface-2);
-border: 1px solid var(–border);
+background: #F9F8FF;
+border: 1px solid #E8E4F8;
 border-radius: var(–radius-md); padding: 10px 12px;
 }
 .modal-stat svg { margin-top: 1px; color: var(–purple-500); flex-shrink: 0; }
-.modal-stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-3); }
-.modal-stat-val { font-size: 0.82rem; font-weight: 600; color: var(–text-1); margin-top: 1px; }
+.modal-stat-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8C88AA; }
+.modal-stat-val { font-size: 0.82rem; font-weight: 600; color: #1E1A3C; margin-top: 1px; }
 
-.modal-desc { font-size: 0.85rem; color: var(–text-2); line-height: 1.7; }
+.modal-desc { font-size: 0.85rem; color: #4A4570; line-height: 1.7; }
 .modal-upcast {
 margin-top: 12px; padding: 12px 14px;
 background: var(–purple-100);
@@ -472,13 +481,13 @@ from { transform: scale(0.4) rotate(-15deg); opacity: 0; }
 to   { transform: scale(1) rotate(0); opacity: 1; }
 }
 .surge-d100 { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; color: var(–purple-500); margin-top: 4px; }
-.surge-text { font-size: 0.9rem; color: var(–text-2); line-height: 1.65; margin-top: 12px; }
+.surge-text { font-size: 0.9rem; color: #4A4570; line-height: 1.65; margin-top: 12px; }
 
 .surge-table-row {
 display: flex; gap: 12px; align-items: flex-start;
 padding: 9px 12px; border-radius: var(–radius-sm);
 }
-.surge-table-row:nth-child(odd) { background: var(–surface-2); }
+.surge-table-row:nth-child(odd) { background: #F9F8FF; }
 .surge-roll-num {
 font-family: var(–font-display);
 font-size: 0.72rem; font-weight: 600;
@@ -490,7 +499,7 @@ flex-shrink: 0;
 .toast {
 position: fixed; bottom: 24px; right: 24px;
 background: var(–surface);
-border: 1px solid var(–border);
+border: 1px solid #E8E4F8;
 border-radius: var(–radius-md);
 padding: 12px 18px;
 box-shadow: var(–shadow-lg);
@@ -504,9 +513,9 @@ min-width: 180px;
 from { transform: translateY(12px); opacity: 0; }
 to   { transform: translateY(0); opacity: 1; }
 }
-.toast-spell { font-size: 0.7rem; color: var(–text-3); margin-bottom: 2px; }
-.toast-result { font-size: 1.5rem; font-weight: 700; color: var(–text-1); }
-.toast-dice   { font-size: 0.8rem; color: var(–text-3); }
+.toast-spell { font-size: 0.7rem; color: #8C88AA; margin-bottom: 2px; }
+.toast-result { font-size: 1.5rem; font-weight: 700; color: #1E1A3C; }
+.toast-dice   { font-size: 0.8rem; color: #8C88AA; }
 
 /* ── Landing ─────────────────────────────────────────────────── */
 .landing-card {
@@ -529,9 +538,9 @@ color: var(–purple-500);
 .landing-title {
 font-family: var(–font-display);
 font-size: 1.8rem; font-weight: 600;
-color: var(–text-1); margin-bottom: 4px;
+color: #1E1A3C; margin-bottom: 4px;
 }
-.landing-sub { font-size: 0.82rem; color: var(–text-3); margin-bottom: 32px; }
+.landing-sub { font-size: 0.82rem; color: #8C88AA; margin-bottom: 32px; }
 
 .upload-zone {
 border: 2px dashed var(–border-2);
@@ -539,7 +548,7 @@ border-radius: var(–radius-lg);
 padding: 32px 24px;
 cursor: pointer;
 transition: all 0.2s ease;
-background: var(–surface-2);
+background: #F9F8FF;
 margin-bottom: 16px;
 }
 .upload-zone:hover { border-color: var(–purple-300); background: var(–purple-100); }
@@ -549,21 +558,21 @@ background: var(–surface);
 border-radius: var(–radius-md);
 display: flex; align-items: center; justify-content: center;
 margin: 0 auto 12px;
-color: var(–text-3);
+color: #8C88AA;
 box-shadow: var(–shadow-sm);
 }
-.upload-title { font-size: 0.88rem; font-weight: 600; color: var(–text-1); margin-bottom: 3px; }
-.upload-sub   { font-size: 0.75rem; color: var(–text-3); }
+.upload-title { font-size: 0.88rem; font-weight: 600; color: #1E1A3C; margin-bottom: 3px; }
+.upload-sub   { font-size: 0.75rem; color: #8C88AA; }
 
 .divider {
 display: flex; align-items: center; gap: 12px;
-margin: 16px 0; color: var(–text-3); font-size: 0.75rem;
+margin: 16px 0; color: #8C88AA; font-size: 0.75rem;
 }
 .divider::before, .divider::after {
 content: ‘’; flex: 1; height: 1px; background: var(–border);
 }
 
-#parseStatus { margin-top: 14px; font-size: 0.8rem; color: var(–text-3); min-height: 18px; }
+#parseStatus { margin-top: 14px; font-size: 0.8rem; color: #8C88AA; min-height: 18px; }
 
 /* ── Section headers ─────────────────────────────────────────── */
 .section-head {
@@ -589,10 +598,11 @@ margin-bottom: 14px; gap: 10px;
 
 /* ── Tabs ────────────────────────────────────────────────────── */
 .tab-bar {
-display: flex; gap: 2px;
-background: var(–surface-2);
-border: 1px solid var(–border);
-border-radius: var(–radius-lg);
+display: -webkit-box; display: -ms-flexbox; display: flex;
+gap: 2px;
+background: #F9F8FF;
+border: 1px solid #E8E4F8;
+border-radius: 20px;
 padding: 4px;
 margin-bottom: 20px;
 }
@@ -600,13 +610,13 @@ margin-bottom: 20px;
 flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
 font-family: var(–font-body); font-size: 0.82rem; font-weight: 600;
 padding: 9px 16px; border-radius: calc(var(–radius-lg) - 4px);
-border: none; background: transparent; color: var(–text-3);
+border: none; background: transparent; color: #8C88AA;
 cursor: pointer; transition: all 0.18s ease;
 }
 .tab-btn svg { flex-shrink: 0; }
-.tab-btn:hover { color: var(–text-2); background: rgba(139,127,212,0.06); }
+.tab-btn:hover { color: #4A4570; background: rgba(139,127,212,0.06); }
 .tab-btn.active {
-background: var(–surface); color: var(–text-1);
+background: var(–surface); color: #1E1A3C;
 box-shadow: var(–shadow-sm);
 }
 
@@ -619,7 +629,7 @@ display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
 .skill-row {
 display: flex; align-items: center; gap: 10px;
 padding: 9px 12px; border-radius: var(–radius-md);
-background: var(–surface-2);
+background: #F9F8FF;
 border: 1px solid transparent;
 transition: all 0.15s ease;
 }
@@ -634,10 +644,10 @@ border: 1.5px solid var(–border-2);
 .skill-pip.proficient { background: var(–purple-500); border-color: var(–purple-500); }
 .skill-pip.expertise  { background: var(–gold-500);   border-color: var(–gold-500); }
 
-.skill-name { font-size: 0.82rem; font-weight: 500; color: var(–text-2); flex: 1; }
-.skill-attr { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(–text-3); }
+.skill-name { font-size: 0.82rem; font-weight: 500; color: #4A4570; flex: 1; }
+.skill-attr { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8C88AA; }
 .skill-bonus {
-font-size: 0.88rem; font-weight: 700; color: var(–text-1);
+font-size: 0.88rem; font-weight: 700; color: #1E1A3C;
 min-width: 32px; text-align: right; flex-shrink: 0;
 }
 
@@ -650,19 +660,19 @@ margin-bottom: 16px;
 .save-chip {
 display: flex; align-items: center; gap: 8px;
 padding: 8px 12px; border-radius: var(–radius-md);
-background: var(–surface-2); border: 1px solid transparent;
+background: #F9F8FF; border: 1px solid transparent;
 }
 .save-chip.proficient { border-color: var(–purple-300); background: var(–purple-100); }
-.save-chip-label { font-size: 0.7rem; font-weight: 600; color: var(–text-3); text-transform: uppercase; letter-spacing: 0.06em; flex: 1; }
-.save-chip-val { font-size: 0.9rem; font-weight: 700; color: var(–text-1); }
+.save-chip-label { font-size: 0.7rem; font-weight: 600; color: #8C88AA; text-transform: uppercase; letter-spacing: 0.06em; flex: 1; }
+.save-chip-val { font-size: 0.9rem; font-weight: 700; color: #1E1A3C; }
 
 .passive-row {
 display: flex; align-items: center; justify-content: space-between;
 padding: 8px 0; border-bottom: 1px solid var(–border);
 }
 .passive-row:last-child { border-bottom: none; }
-.passive-label { font-size: 0.82rem; color: var(–text-2); }
-.passive-val { font-size: 0.88rem; font-weight: 700; color: var(–text-1); }
+.passive-label { font-size: 0.82rem; color: #4A4570; }
+.passive-val { font-size: 0.88rem; font-weight: 700; color: #1E1A3C; }
 
 </style>
 </head>
@@ -748,7 +758,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
   <div class="card card-p mb-14">
     <div class="t-label mb-8">Ability Scores</div>
     <div class="stats-row" id="statsRow"></div>
-    <div id="extraStats" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"></div>
+
   </div>
 
   <!-- HP + Wild Magic row -->
@@ -1202,7 +1212,7 @@ async function handlePDFUpload(e) {
     const statMap = { STR:['STR','Strength'], DEX:['DEX','Dexterity'], CON:['CON','Constitution'], INT:['INT','Intelligence'], WIS:['WIS','Wisdom'], CHA:['CHA','Charisma'] };
     for (const [k, keys] of Object.entries(statMap)) for (const key of keys) { const v = parseInt(fields[key]); if (!isNaN(v) && v > 0) { state.stats[k] = v; break; } }
     const count = Object.keys(fields).length;
-    status.textContent = count ? `${count} velden gevonden.` : 'Geen AcroForm velden — standaard data geladen.';
+    status.textContent = count ? (count + ' velden gevonden.') : 'Geen AcroForm velden — standaard data geladen.';
     saveState(); setTimeout(() => startApp(), 500);
   } catch(err) {
     status.textContent = 'PDF kon niet worden gelezen — standaard data geladen.';
@@ -1220,7 +1230,7 @@ function startApp() {
 function renderAll() {
   document.getElementById('charName').textContent = state.name || 'Finn';
   document.getElementById('charSub').textContent =
-    `Level ${state.level} ${state.class} · ${state.race}${state.background ? ' · ' + state.background : ''} · AC ${state.ac || 12} · Spell Save DC ${state.spellSaveDC || 13} · Aanval +${state.spellAttackBonus || 5}`;
+    'Level ' + state.level + ' ' + state.class + ' · ' + state.race + (state.background ? ' · ' + state.background : '') + ' · AC ' + (state.ac || 12) + ' · Spell Save DC ' + (state.spellSaveDC || 13) + ' · Aanval +' + (state.spellAttackBonus || 5);
   renderStats();
   renderHP();
   renderSP();
@@ -1230,11 +1240,19 @@ function renderAll() {
 }
 
 function renderStats() {
-  const row = document.getElementById('statsRow');
+  var row = document.getElementById('statsRow');
   row.innerHTML = '';
-  const mod = v => { const m = Math.floor((v - 10) / 2); return (m >= 0 ? '+' : '') + m; };
-  for (const [k, v] of Object.entries(state.stats)) {
-    row.innerHTML += `<div class="stat-chip"><div class="stat-val">${v}</div><div class="stat-mod">${mod(v)}</div><div class="stat-key">${k}</div></div>`;
+  var mod = function(v) { var m = Math.floor((v - 10) / 2); return (m >= 0 ? '+' : '') + m; };
+  var entries = Object.entries(state.stats);
+  for (var i = 0; i < entries.length; i++) {
+    var k = entries[i][0], v = entries[i][1];
+    var chip = document.createElement('div');
+    chip.className = 'stat-chip';
+    var valEl = document.createElement('div'); valEl.className = 'stat-val'; valEl.textContent = v;
+    var modEl = document.createElement('div'); modEl.className = 'stat-mod'; modEl.textContent = mod(v);
+    var keyEl = document.createElement('div'); keyEl.className = 'stat-key'; keyEl.textContent = k;
+    chip.appendChild(valEl); chip.appendChild(modEl); chip.appendChild(keyEl);
+    row.appendChild(chip);
   }
 }
 
@@ -1268,7 +1286,7 @@ function renderSP() {
       saveState(); renderSP();
     };
     if (on) {
-      pip.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="12" r="5"/></svg>`;
+      pip.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="white" stroke="none"><circle cx="12" cy="12" r="5"/></svg>';
     }
     row.appendChild(pip);
   }
@@ -1284,7 +1302,7 @@ function renderSlots() {
       const pip = document.createElement('button');
       pip.className = 'slot-pip ' + (on ? 'on' : 'off');
       pip.title = on ? 'Klik om te verbruiken' : 'Klik om te herstellen';
-      pip.innerHTML = `<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--purple-500)" stroke="none"><circle cx="12" cy="12" r="6"/></svg>`;
+      pip.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="#8B7FD4" stroke="none"><circle cx="12" cy="12" r="6"/></svg>';
       pip.onclick = () => {
         state.spellSlots[lvl].current = on
           ? Math.max(0, slot.current - 1)
@@ -1412,14 +1430,14 @@ function renderSpells() {
 // ── Wild Magic ────────────────────────────────────────────────
 function rollWildMagic() {
   const roll = Math.floor(Math.random() * 20) + 1;
-  document.getElementById('lastRoll').textContent = `d20 = ${roll}${roll === 1 ? ' — Surge!' : ''}`;
+  document.getElementById('lastRoll').textContent = 'd20 = ' + roll + (roll === 1 ? ' — Surge!' : '');
   const surge = roll === 1 || (!state.tidesAvailable && roll <= 2);
   if (surge) {
     const d100 = Math.floor(Math.random() * 100) + 1;
     const idx  = Math.min(Math.floor((d100 - 1) / 2), SURGE_RESULTS.length - 1);
     const entry = SURGE_RESULTS[idx];
     const disp  = d100 === 100 ? '00' : String(d100).padStart(2, '0');
-    document.getElementById('surgeD100').textContent = `d100 = ${disp}  ·  tabelregel ${entry.roll}`;
+    document.getElementById('surgeD100').textContent = 'd100 = ' + disp + '  ·  tabelregel ' + entry.roll;
     document.getElementById('surgeText').textContent = entry.text;
     document.getElementById('surgeModal').classList.add('open');
     if (!state.tidesAvailable) { state.tidesAvailable = true; saveState(); }
@@ -1432,9 +1450,13 @@ function closeSurge() {
 
 function openSurgeTable() {
   const body = document.getElementById('surgeTableBody');
-  body.innerHTML = SURGE_RESULTS.map(e =>
-    `<div class="surge-table-row"><div class="surge-roll-num">${e.roll}</div><div class="t-body">${e.text}</div></div>`
-  ).join('');
+  body.innerHTML = '';
+  for (var sri = 0; sri < SURGE_RESULTS.length; sri++) {
+    var srow = document.createElement('div'); srow.className = 'surge-table-row';
+    var srn  = document.createElement('div'); srn.className = 'surge-roll-num'; srn.textContent = SURGE_RESULTS[sri].roll;
+    var stx  = document.createElement('div'); stx.className = 't-body';         stx.textContent = SURGE_RESULTS[sri].text;
+    srow.appendChild(srn); srow.appendChild(stx); body.appendChild(srow);
+  }
   document.getElementById('surgeTableModal').classList.add('open');
 }
 function closeSurgeTable() { document.getElementById('surgeTableModal').classList.remove('open'); }
@@ -1444,7 +1466,7 @@ function openSpellModal(name) {
   const info = SPELL_INFO[name];
   if (!info) return;
   document.getElementById('spellModalTitle').textContent = name;
-  document.getElementById('spellModalSchool').textContent = `${info.school}  ·  ${info.level}`;
+  document.getElementById('spellModalSchool').textContent = info.school + '  ·  ' + info.level;
 
   const statDefs = [
     { icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', label: 'Wierptijd', val: info.castTime },
@@ -1452,13 +1474,28 @@ function openSpellModal(name) {
     { icon: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>', label: 'Componenten', val: info.components },
     { icon: '<path d="M5 3h14M5 21h14M17 3v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V3M17 21v-4a5 5 0 0 1-5-5 5 5 0 0 1-5 5v4"/>', label: 'Duur', val: info.duration },
   ];
-  document.getElementById('spellModalStats').innerHTML = statDefs.map(s =>
-    `<div class="modal-stat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg><div><div class="modal-stat-label">${s.label}</div><div class="modal-stat-val">${s.val}</div></div></div>`
-  ).join('');
+  var statsGrid = document.getElementById('spellModalStats');
+  statsGrid.innerHTML = '';
+  for (var si = 0; si < statDefs.length; si++) {
+    var sd = statDefs[si];
+    var mstat = document.createElement('div'); mstat.className = 'modal-stat';
+    var msvg  = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    msvg.setAttribute('width','14'); msvg.setAttribute('height','14');
+    msvg.setAttribute('viewBox','0 0 24 24'); msvg.setAttribute('fill','none');
+    msvg.setAttribute('stroke','currentColor'); msvg.setAttribute('stroke-width','2');
+    msvg.setAttribute('stroke-linecap','round'); msvg.setAttribute('stroke-linejoin','round');
+    msvg.innerHTML = sd.icon;
+    var mdiv  = document.createElement('div');
+    var mlbl  = document.createElement('div'); mlbl.className = 'modal-stat-label'; mlbl.textContent = sd.label;
+    var mval  = document.createElement('div'); mval.className = 'modal-stat-val';   mval.textContent = sd.val;
+    mdiv.appendChild(mlbl); mdiv.appendChild(mval);
+    mstat.appendChild(msvg); mstat.appendChild(mdiv);
+    statsGrid.appendChild(mstat);
+  }
 
   document.getElementById('spellModalDesc').innerHTML = info.description.replace(/\n/g, '<br>');
   const up = document.getElementById('spellModalUpcast');
-  if (info.upcast) { up.style.display = 'block'; up.innerHTML = `<strong>Op hoger niveau:</strong> ${info.upcast}`; }
+  if (info.upcast) { up.style.display = 'block'; up.innerHTML = '<strong>Op hoger niveau:</strong> ' + info.upcast; }
   else { up.style.display = 'none'; }
   document.getElementById('spellModal').classList.add('open');
 }
@@ -1574,11 +1611,11 @@ function renderSkills() {
     const total = base + (isProficient ? prof : 0);
     const chip = document.createElement('div');
     chip.className = 'save-chip' + (isProficient ? ' proficient' : '');
-    chip.innerHTML = `
-      <div class="skill-pip ${isProficient ? 'proficient' : ''}"></div>
-      <div class="save-chip-label">${attr}</div>
-      <div class="save-chip-val">${fmtBonus(total)}</div>
-    `;
+    var pip = document.createElement('div');
+    pip.className = 'skill-pip' + (isProficient ? ' proficient' : '');
+    var lbl = document.createElement('div'); lbl.className = 'save-chip-label'; lbl.textContent = attr;
+    var val = document.createElement('div'); val.className = 'save-chip-val'; val.textContent = fmtBonus(total);
+    chip.appendChild(pip); chip.appendChild(lbl); chip.appendChild(val);
     savesEl.appendChild(chip);
   }
 
@@ -1597,12 +1634,11 @@ function renderSkills() {
 
     const row = document.createElement('div');
     row.className = rowClass;
-    row.innerHTML = `
-      <div class="skill-pip ${pipClass}"></div>
-      <div class="skill-name">${sk.name}</div>
-      <div class="skill-attr">${sk.attr}</div>
-      <div class="skill-bonus">${fmtBonus(bonus)}</div>
-    `;
+    var spip = document.createElement('div'); spip.className = 'skill-pip' + (pipClass ? ' ' + pipClass : '');
+    var snm  = document.createElement('div'); snm.className = 'skill-name';  snm.textContent = sk.name;
+    var sat  = document.createElement('div'); sat.className = 'skill-attr';  sat.textContent = sk.attr;
+    var sbn  = document.createElement('div'); sbn.className = 'skill-bonus'; sbn.textContent = fmtBonus(bonus);
+    row.appendChild(spip); row.appendChild(snm); row.appendChild(sat); row.appendChild(sbn);
     grid.appendChild(row);
   }
 
@@ -1616,12 +1652,13 @@ function renderSkills() {
     { label: 'Passive Insight',        val: 10 + insightMod    },
     { label: 'Passive Investigation',  val: 10 + investMod     },
   ];
-  passEl.innerHTML = passives.map(p => `
-    <div class="passive-row">
-      <div class="passive-label">${p.label}</div>
-      <div class="passive-val">${p.val}</div>
-    </div>
-  `).join('');
+  passEl.innerHTML = '';
+  for (var pi = 0; pi < passives.length; pi++) {
+    var prow = document.createElement('div'); prow.className = 'passive-row';
+    var plbl = document.createElement('div'); plbl.className = 'passive-label'; plbl.textContent = passives[pi].label;
+    var pvl  = document.createElement('div'); pvl.className  = 'passive-val';   pvl.textContent = passives[pi].val;
+    prow.appendChild(plbl); prow.appendChild(pvl); passEl.appendChild(prow);
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────
