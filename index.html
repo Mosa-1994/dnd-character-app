@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ── Reset & Base ───────────────────────────────────────────── */
+/* Reset & Base */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -73,13 +73,13 @@ radial-gradient(circle at 10% 90%, rgba(82,201,122,0.10) 0%, transparent 45%);
 pointer-events: none; z-index: 0;
 }
 
-/* ── Typography ─────────────────────────────────────────────── */
+/* Typography */
 .t-label   { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8C88AA; }
 .t-body    { font-size: 0.875rem; color: #4A4570; line-height: 1.6; }
 .t-small   { font-size: 0.75rem; color: #8C88AA; }
 .t-display { font-family: var(–font-display); }
 
-/* ── Layout ─────────────────────────────────────────────────── */
+/* Layout */
 .page { position: relative; z-index: 1; }
 
 /* Landing */
@@ -96,7 +96,7 @@ margin: 0 auto;
 padding: 24px 20px 48px;
 }
 
-/* ── Cards ──────────────────────────────────────────────────── */
+/* Cards */
 .card {
 background: #ffffff;
 border: 1px solid #E8E4F8;
@@ -105,7 +105,7 @@ box-shadow: 0 1px 3px rgba(91,80,160,0.08), 0 1px 2px rgba(91,80,160,0.04);
 }
 .card-p { padding: 20px; }
 
-/* ── App Header ─────────────────────────────────────────────── */
+/* App Header */
 .app-header {
 display: flex; align-items: flex-start;
 justify-content: space-between; gap: 16px;
@@ -126,7 +126,7 @@ margin-top: 4px;
 }
 .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-/* ── Buttons ─────────────────────────────────────────────────── */
+/* Buttons */
 .btn {
 display: inline-flex; align-items: center; gap: 7px;
 font-family: var(–font-body);
@@ -201,18 +201,27 @@ animation: gold-pulse 2.2s ease-in-out infinite;
 50%       { box-shadow: 0 6px 28px rgba(212,160,23,0.6), 0 0 0 4px rgba(212,160,23,0.12); }
 }
 
-/* ── Grid ───────────────────────────────────────────────────── */
+/* Grid */
 .grid-2 {
-display: -webkit-box; display: -ms-flexbox; display: flex;
--ms-flex-wrap: wrap; flex-wrap: wrap; gap: 14px;
+display: -webkit-box;
+display: -ms-flexbox;
+display: flex;
+-ms-flex-wrap: wrap;
+flex-wrap: wrap;
+gap: 14px;
 }
-.grid-2 > * { -webkit-box-flex: 1; -ms-flex: 1 1 280px; flex: 1 1 280px; min-width: 0; }
+.grid-2 > * {
+-webkit-box-flex: 1;
+-ms-flex: 1 1 260px;
+flex: 1 1 260px;
+min-width: 0;
+}
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 @media (max-width: 580px) {
 .grid-2 { grid-template-columns: 1fr; }
 }
 
-/* ── Stats Bar ──────────────────────────────────────────────── */
+/* Stats Bar */
 .stats-row {
 display: flex; gap: 8px; flex-wrap: nowrap; overflow-x: auto;
 padding-bottom: 4px; -webkit-overflow-scrolling: touch;
@@ -229,7 +238,7 @@ gap: 2px;
 .stat-mod { font-size: 0.7rem; font-weight: 600; color: var(–purple-500); }
 .stat-key { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8C88AA; }
 
-/* ── HP Tracker ─────────────────────────────────────────────── */
+/* HP Tracker */
 .hp-block {
 display: flex; align-items: center; gap: 12px;
 margin: 12px 0 10px;
@@ -263,7 +272,7 @@ height: 100%; border-radius: 3px;
 transition: width 0.4s ease, background-color 0.4s ease;
 }
 
-/* ── Sorcery Points ─────────────────────────────────────────── */
+/* Sorcery Points */
 .sp-row { display: flex; gap: 10px; align-items: center; margin-top: 12px; }
 .sp-pip {
 width: 36px; height: 36px; border-radius: 50%;
@@ -280,7 +289,7 @@ box-shadow: 0 2px 10px rgba(139,127,212,0.4);
 .sp-pip.off { background: #F9F8FF; }
 .sp-pip:hover { transform: scale(1.18) rotate(8deg); }
 
-/* ── Spell Slots ─────────────────────────────────────────────── */
+/* Spell Slots */
 .slot-row { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 .slot-pip {
 width: 28px; height: 28px; border-radius: var(–radius-sm);
@@ -298,7 +307,7 @@ border-color: var(–purple-300);
 .slot-pip.off svg { opacity: 0; }
 .slot-pip:hover { transform: scale(1.12); }
 
-/* ── Wild Magic Panel ───────────────────────────────────────── */
+/* Wild Magic Panel */
 .tides-row {
 display: flex; align-items: center; justify-content: space-between;
 margin-bottom: 16px;
@@ -333,7 +342,7 @@ transition: color 0.15s;
 }
 .table-link:hover { color: var(–purple-500); }
 
-/* ── Filter Buttons ─────────────────────────────────────────── */
+/* Filter Buttons */
 .filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
 .filter-btn {
 display: inline-flex; align-items: center; gap: 5px;
@@ -353,7 +362,7 @@ border-color: transparent;
 box-shadow: 0 2px 8px rgba(139,127,212,0.3);
 }
 
-/* ── Spell Cards ─────────────────────────────────────────────── */
+/* Spell Cards */
 .spell-list { display: flex; flex-direction: column; gap: 4px; margin-top: 12px; }
 .spell-card {
 display: flex; align-items: center; gap: 10px;
@@ -396,7 +405,7 @@ transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0;
 }
 .roll-btn:hover { background: var(–purple-100); border-color: var(–purple-300); color: var(–purple-700); transform: scale(1.04); }
 
-/* ── Modals ──────────────────────────────────────────────────── */
+/* Modals */
 .modal-backdrop {
 position: fixed; inset: 0;
 background: rgba(30,26,60,0.5);
@@ -461,7 +470,7 @@ border-radius: var(–radius-md);
 font-size: 0.8rem; color: var(–purple-700); line-height: 1.55;
 }
 
-/* Surge modal — wide */
+/* Surge modal - wide */
 .modal-wide { max-width: 560px; }
 .surge-modal-header {
 padding: 28px 24px 0;
@@ -495,7 +504,7 @@ color: var(–purple-500); min-width: 40px; padding-top: 1px;
 flex-shrink: 0;
 }
 
-/* ── Toast ──────────────────────────────────────────────────── */
+/* Toast */
 .toast {
 position: fixed; bottom: 24px; right: 24px;
 background: var(–surface);
@@ -517,7 +526,7 @@ to   { transform: translateY(0); opacity: 1; }
 .toast-result { font-size: 1.5rem; font-weight: 700; color: #1E1A3C; }
 .toast-dice   { font-size: 0.8rem; color: #8C88AA; }
 
-/* ── Landing ─────────────────────────────────────────────────── */
+/* Landing */
 .landing-card {
 background: #ffffff;
 border: 1px solid #E8E4F8;
@@ -574,17 +583,17 @@ content: ‘’; flex: 1; height: 1px; background: var(–border);
 
 #parseStatus { margin-top: 14px; font-size: 0.8rem; color: #8C88AA; min-height: 18px; }
 
-/* ── Section headers ─────────────────────────────────────────── */
+/* Section headers */
 .section-head {
 display: flex; align-items: center; justify-content: space-between;
 margin-bottom: 14px; gap: 10px;
 }
 
-/* ── Utility ─────────────────────────────────────────────────── */
+/* Utility */
 .mb-14 { margin-bottom: 14px; }
 .mb-8  { margin-bottom: 8px; }
 
-/* ── Scrollbar ───────────────────────────────────────────────── */
+/* Scrollbar */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(–border-2); border-radius: 3px; }
@@ -596,7 +605,7 @@ margin-bottom: 14px; gap: 10px;
 .char-name { font-size: 1.4rem; }
 }
 
-/* ── Tabs ────────────────────────────────────────────────────── */
+/* Tabs */
 .tab-bar {
 display: -webkit-box; display: -ms-flexbox; display: flex;
 gap: 2px;
@@ -620,7 +629,7 @@ background: var(–surface); color: #1E1A3C;
 box-shadow: var(–shadow-sm);
 }
 
-/* ── Skills tab ──────────────────────────────────────────────── */
+/* Skills tab */
 .skills-grid {
 display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
 }
@@ -678,7 +687,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
 </head>
 <body class="page">
 
-<!-- ══ LANDING ══════════════════════════════════════════════ -->
+<!-- - LANDING - -->
 
 <div id="landing">
   <div class="landing-card">
@@ -688,7 +697,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
       </svg>
     </div>
     <h1 class="landing-title">Finn's Chaos Manager</h1>
-    <p class="landing-sub">Level 3 Wild Magic Sorcerer · v1.4</p>
+    <p class="landing-sub">Level 3 Wild Magic Sorcerer &middot; v1.4</p>
 
 ```
 <div class="upload-zone" id="uploadZone" onclick="document.getElementById('pdfInput').click()">
@@ -701,7 +710,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
     </svg>
   </div>
   <p class="upload-title">Upload D&amp;D Beyond PDF</p>
-  <p class="upload-sub">Klik of sleep hier naartoe · AcroForm velden worden gelezen</p>
+  <p class="upload-sub">Klik of sleep hier naartoe &middot; AcroForm velden worden gelezen</p>
   <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handlePDFUpload(event)">
 </div>
 
@@ -725,7 +734,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
   </noscript>
 </div>
 
-<!-- ══ APP ══════════════════════════════════════════════════ -->
+<!-- - APP - -->
 
 <div id="app">
 <div class="app-inner">
@@ -933,7 +942,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
 </div>
 </div>
 
-<!-- ══ MODALS ════════════════════════════════════════════════ -->
+<!-- - MODALS - -->
 
 <!-- Surge overlay -->
 
@@ -962,7 +971,7 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
     <div class="modal-header">
       <div>
         <div class="modal-title">Wild Magic Surge Table</div>
-        <div class="t-small" style="margin-top:3px;">Officiële PHB resultaten · d100</div>
+        <div class="t-small" style="margin-top:3px;">Officiële PHB resultaten &middot; d100</div>
       </div>
       <button class="modal-close" onclick="closeSurgeTable()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1004,12 +1013,12 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
 </div>
 
 <script>
-// ── PDF.js ────────────────────────────────────────────────────
+// - PDF.js -
 if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-// ── Data ──────────────────────────────────────────────────────
+// - Data -
 const FINN_DEFAULT = {
   name: "Fionnghuala \"Finn\" Swiftstep",
   race: "Eladrin (Variant)",
@@ -1045,7 +1054,7 @@ const FINN_DEFAULT = {
   ]
 };
 
-// Wild Magic Surge table — alle 50 officiële PHB resultaten (d100)
+// Wild Magic Surge table - alle 50 officiële PHB resultaten (d100)
 const SURGE_RESULTS = [
   { roll:"01-02", text:"Rol aan het begin van elk van je beurten voor de volgende minuut opnieuw op deze tabel (negeer dit resultaat bij latere rollen)." },
   { roll:"03-04", text:"Je kunt gedurende de volgende minuut elk onzichtbaar wezen zien als je er zichtlijn op hebt." },
@@ -1128,7 +1137,7 @@ const SPELL_INFO = {
   "Chromatic Orb": {
     school: "Evocatie", level: "1e niveau", castTime: "1 actie", range: "90 ft.",
     components: "V, S, M (een diamant van minimaal 50 gp)", duration: "Ogenblikkelijk",
-    description: "Je slingert een bol van 10 cm doorsnee energetisch materiaal naar een wezen dat je binnen bereik kunt zien. Kies het type: zuur, kou, vuur, bliksem, gif of donder — en maak een aanval met spreukafstand (+5). Bij een treffer neemt het doel 3d8 schade van het gekozen type.",
+    description: "Je slingert een bol van 10 cm doorsnee energetisch materiaal naar een wezen dat je binnen bereik kunt zien. Kies het type: zuur, kou, vuur, bliksem, gif of donder - en maak een aanval met spreukafstand (+5). Bij een treffer neemt het doel 3d8 schade van het gekozen type.",
     upcast: "Wanneer je deze spreuk werpt met een sleuf van 2e niveau of hoger, stijgt de schade met 1d8 per sleutniveau boven het 1e."
   },
   "Magic Missile": {
@@ -1162,14 +1171,14 @@ const SPELL_INFO = {
     upcast: null
   },
   "Misty Step": {
-    school: "Bezwering", level: "2e niveau — via Fey Step (1/Short Rest)", castTime: "1 bonus actie", range: "Zelf",
+    school: "Bezwering", level: "2e niveau - via Fey Step (1/Short Rest)", castTime: "1 bonus actie", range: "Zelf",
     components: "V", duration: "Ogenblikkelijk",
-    description: "Omhuld door een wolk van sluierachtige mist teleporteer je tot 30 ft. naar een onbezet vakje dat je kunt zien.\n\nFinn gebruikt dit via haar Eladrin Fey Step vermogen — één keer per Short Rest, gratis zonder spreuksleuf.",
+    description: "Omhuld door een wolk van sluierachtige mist teleporteer je tot 30 ft. naar een onbezet vakje dat je kunt zien.\n\nFinn gebruikt dit via haar Eladrin Fey Step vermogen - één keer per Short Rest, gratis zonder spreuksleuf.",
     upcast: null
   }
 };
 
-// ── State ─────────────────────────────────────────────────────
+// - State -
 let state = {};
 let activeFilter = 'all';
 
@@ -1189,7 +1198,7 @@ function loadFallbackData() {
   saveState(); startApp();
 }
 
-// ── PDF Parsing ───────────────────────────────────────────────
+// - PDF Parsing -
 async function handlePDFUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1212,15 +1221,15 @@ async function handlePDFUpload(e) {
     const statMap = { STR:['STR','Strength'], DEX:['DEX','Dexterity'], CON:['CON','Constitution'], INT:['INT','Intelligence'], WIS:['WIS','Wisdom'], CHA:['CHA','Charisma'] };
     for (const [k, keys] of Object.entries(statMap)) for (const key of keys) { const v = parseInt(fields[key]); if (!isNaN(v) && v > 0) { state.stats[k] = v; break; } }
     const count = Object.keys(fields).length;
-    status.textContent = count ? (count + ' velden gevonden.') : 'Geen AcroForm velden — standaard data geladen.';
+    status.textContent = count ? (count + ' velden gevonden.') : 'Geen AcroForm velden - standaard data geladen.';
     saveState(); setTimeout(() => startApp(), 500);
   } catch(err) {
-    status.textContent = 'PDF kon niet worden gelezen — standaard data geladen.';
+    status.textContent = 'PDF kon niet worden gelezen - standaard data geladen.';
     loadFallbackData();
   }
 }
 
-// ── App ───────────────────────────────────────────────────────
+// - App -
 function startApp() {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('app').style.display = 'block';
@@ -1320,7 +1329,7 @@ function renderTides() {
   const thumb  = document.getElementById('tidesThumb');
   toggle.style.background = on ? 'var(--purple-500)' : 'var(--border-2)';
   thumb.style.left = on ? '25px' : '3px';
-  document.getElementById('tidesStatus').textContent = on ? 'Beschikbaar' : 'Verbruikt — surge kans actief';
+  document.getElementById('tidesStatus').textContent = on ? 'Beschikbaar' : 'Verbruikt - surge kans actief';
   document.getElementById('surgeBtn').classList.toggle('tides-active', !on);
 }
 
@@ -1329,7 +1338,7 @@ function toggleTides() {
   saveState(); renderTides();
 }
 
-// ── Spells ────────────────────────────────────────────────────
+// - Spells -
 function setFilter(f) {
   activeFilter = f;
   document.querySelectorAll('#filterGroup .filter-btn').forEach(btn => {
@@ -1427,10 +1436,10 @@ function renderSpells() {
   }
 }
 
-// ── Wild Magic ────────────────────────────────────────────────
+// - Wild Magic -
 function rollWildMagic() {
   const roll = Math.floor(Math.random() * 20) + 1;
-  document.getElementById('lastRoll').textContent = 'd20 = ' + roll + (roll === 1 ? ' — Surge!' : '');
+  document.getElementById('lastRoll').textContent = 'd20 = ' + roll + (roll === 1 ? ' - Surge!' : '');
   const surge = roll === 1 || (!state.tidesAvailable && roll <= 2);
   if (surge) {
     const d100 = Math.floor(Math.random() * 100) + 1;
@@ -1461,7 +1470,7 @@ function openSurgeTable() {
 }
 function closeSurgeTable() { document.getElementById('surgeTableModal').classList.remove('open'); }
 
-// ── Spell Modal ───────────────────────────────────────────────
+// - Spell Modal -
 function openSpellModal(name) {
   const info = SPELL_INFO[name];
   if (!info) return;
@@ -1501,7 +1510,7 @@ function openSpellModal(name) {
 }
 function closeSpellModal() { document.getElementById('spellModal').classList.remove('open'); }
 
-// ── Dice ──────────────────────────────────────────────────────
+// - Dice -
 function rollDice(name, expr) {
   const result = evalDice(expr);
   document.getElementById('toastSpell').textContent = name;
@@ -1524,7 +1533,7 @@ function evalDice(expr) {
     // handle (XdY+Z)*N style
     const grp = part.match(/\((\d+)d(\d+)\+(\d+)\)/);
     if (grp) {
-      // e.g. 3x(1d4+1) — handled by caller splitting on x first, but fallback:
+      // e.g. 3x(1d4+1) - handled by caller splitting on x first, but fallback:
       const [,n,s,b] = grp.map(Number); for (let i=0;i<n;i++) total += Math.floor(Math.random()*s)+1+b; continue;
     }
     total += parseInt(part) || 0;
@@ -1532,7 +1541,7 @@ function evalDice(expr) {
   return total;
 }
 
-// ── Long Rest ─────────────────────────────────────────────────
+// - Long Rest -
 function longRest() {
   state.currentHP = state.maxHP;
   state.sorceryPoints.current = state.sorceryPoints.max;
@@ -1542,14 +1551,14 @@ function longRest() {
   saveState(); renderAll();
   document.getElementById('toastSpell').textContent = 'Long Rest';
   document.getElementById('toastResult').textContent = 'Voltooid ';
-  document.getElementById('toastDice').textContent = '— alle resources hersteld';
+  document.getElementById('toastDice').textContent = '- alle resources hersteld';
   const toast = document.getElementById('toast');
   toast.style.display = 'block';
   clearTimeout(window._tt);
   window._tt = setTimeout(() => toast.style.display = 'none', 2500);
 }
 
-// ── Reset ─────────────────────────────────────────────────────
+// - Reset -
 function resetToLanding() {
   document.getElementById('app').style.display = 'none';
   document.getElementById('landing').style.display = 'flex';
@@ -1558,7 +1567,7 @@ function resetToLanding() {
 }
 
 
-// ── Skills tab ────────────────────────────────────────────────
+// - Skills tab -
 let activeTab = 'play';
 
 function switchTab(tab) {
@@ -1601,7 +1610,7 @@ function renderSkills() {
   const stats = state.stats;
   const prof  = state.proficiencyBonus || 2;
 
-  // ── Saving Throws ──
+  // - Saving Throws -
   const savesEl = document.getElementById('savesGrid');
   savesEl.innerHTML = '';
   const saveAttrs = ['STR','DEX','CON','INT','WIS','CHA'];
@@ -1619,7 +1628,7 @@ function renderSkills() {
     savesEl.appendChild(chip);
   }
 
-  // ── Skills ──
+  // - Skills -
   const grid = document.getElementById('skillsGrid');
   grid.innerHTML = '';
   for (const sk of SKILLS_DEF) {
@@ -1642,7 +1651,7 @@ function renderSkills() {
     grid.appendChild(row);
   }
 
-  // ── Passive scores ──
+  // - Passive scores -
   const passEl = document.getElementById('passiveScores');
   const perceptionMod = abilityMod(stats.WIS) + (SKILLS_DEF.find(s=>s.name==='Perception').proficient ? prof : 0);
   const insightMod    = abilityMod(stats.WIS) + (SKILLS_DEF.find(s=>s.name==='Insight').proficient    ? prof : 0);
@@ -1661,7 +1670,7 @@ function renderSkills() {
   }
 }
 
-// ── Init ──────────────────────────────────────────────────────
+// - Init -
 window.addEventListener('DOMContentLoaded', () => {
   if (loadState() && state.name && state.version === '2.0') {
     startApp();
