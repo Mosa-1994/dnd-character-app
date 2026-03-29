@@ -7,6 +7,7 @@
 <title>Finn's Chaos Manager</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ── Reset & Base ───────────────────────────────────────────── */
@@ -46,11 +47,11 @@
 –shadow-md:   0 4px 16px rgba(91,80,160,0.10), 0 1px 4px rgba(91,80,160,0.06);
 –shadow-lg:   0 12px 40px rgba(91,80,160,0.14), 0 2px 8px rgba(91,80,160,0.08);
 
-–font-body:   ‘Outfit’, sans-serif;
-–font-display:‘Crimson Pro’, serif;
+–font-body:   ‘Outfit’, ui-rounded, system-ui, -apple-system, sans-serif;
+–font-display:‘Crimson Pro’, ‘Georgia’, ‘Times New Roman’, serif;
 }
 
-html { font-size: 16px; }
+html { font-size: 16px; background-color: #F5F3FF; }
 
 body {
 font-family: var(–font-body);
@@ -58,6 +59,8 @@ background-color: var(–bg);
 color: var(–text-1);
 min-height: 100vh;
 line-height: 1.5;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
 }
 
 /* Subtle background pattern */
@@ -507,8 +510,8 @@ to   { transform: translateY(0); opacity: 1; }
 
 /* ── Landing ─────────────────────────────────────────────────── */
 .landing-card {
-background: var(–surface);
-border: 1px solid var(–border);
+background: #ffffff;
+border: 1px solid #E8E4F8;
 border-radius: var(–radius-xl);
 box-shadow: var(–shadow-lg);
 padding: 48px 40px;
@@ -705,6 +708,11 @@ padding: 8px 0; border-bottom: 1px solid var(–border);
 ```
 
   </div>
+  <noscript>
+    <p style="color:#E05757;margin-top:16px;font-size:0.85rem;">
+      JavaScript is uitgeschakeld in deze browser. Schakel het in om de app te gebruiken.
+    </p>
+  </noscript>
 </div>
 
 <!-- ══ APP ══════════════════════════════════════════════════ -->
