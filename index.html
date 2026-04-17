@@ -1,480 +1,256 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Heart, 
-  Shield, 
-  Sword, 
-  Zap, 
-  Clock, 
-  Search, 
-  Edit2, 
-  Play, 
-  RefreshCw, 
-  Save, 
-  Github, 
-  ChevronDown, 
-  ChevronUp,
-  AlertCircle,
-  CheckCircle2,
-  X,
-  FileText,
-  Download,
-  Upload
-} from 'lucide-react';
-
-const COLORS = {
-  bg: '#FDF6F4',
-  peach: '#F4BEAE',
-  brown: '#785A3C',
-  white: '#FFFFFF',
-};
-
-const DEFAULT_CHARACTER = {
-  character_identity: { name: "Finn", class: "Wizard", level: 3 },
-  ability_scores: { str: 8, dex: 14, con: 12, int: 16, wis: 13, cha: 10 },
-  combat_stats: {
-    hp: { current: 14, max: 14, temp: 0 },
-    armor_class: 12,
-    initiative: 2,
-    proficiency_bonus: 2,
-    hit_dice: "3d6",
-    speed: "30 ft.",
-    spell_save_dc: 13,
-    spell_attack_bonus: 5,
-    passive_perception: 11,
-    passive_insight: 11,
-    passive_investigation: 13
-  },
-  skills: {
-    athletics: -1, acrobatics: 2, sleight_of_hand: 2, stealth: 2,
-    arcana: 5, history: 5, investigation: 5, nature: 3, religion: 3,
-    animal_handling: 1, insight: 1, medicine: 1, perception: 1, survival: 1,
-    deception: 0, intimidation: 0, performance: 0, persuasion: 0
-  },
-  spellcasting: {
-    slots: {
-      level_1: { max: 4, used: 0 },
-      level_2: { max: 2, used: 0 }
-    },
-    spells: {
-      cantrips: [
-        { name: "Fire Bolt", casting_time: "1 Action", range: "120 ft.", description: "You hurl a mote of fire." },
-        { name: "Mage Hand", casting_time: "1 Action", range: "30 ft.", description: "A spectral, floating hand." }
-      ],
-      level_1: [
-        { name: "Shield", casting_time: "1 Reaction", description: "Invisible barrier.", concentration: false },
-        { name: "Magic Missile", casting_time: "1 Action", description: "Glowing darts.", concentration: false }
-      ],
-      level_2: [
-        { name: "Misty Step", casting_time: "1 Bonus Action", description: "Teleport 30ft.", concentration: false },
-        { name: "Witch Bolt", casting_time: "1 Action", description: "Beam of energy.", concentration: true }
-      ]
-    }
-  },
-  features_and_traits: []
-};
-
-// --- API Helpers with Exponential Backoff ---
-const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
-  try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-      if (response.status === 404 && options.method === 'GET') return response; // Handled by caller
-      throw new Error(`HTTP ${response.status}`);
-    }
-    return response;
-  } catch (error) {
-    if (retries <= 0) throw error;
-    await new Promise(resolve => setTimeout(resolve, backoff));
-    return fetchWithRetry(url, options, retries - 1, backoff * 2);
-  }
-};
-
-const App = () => {
-  const [character, setCharacter] = useState(DEFAULT_CHARACTER);
-  const [mode, setMode] = useState('play');
-  const [activeTab, setActiveTab] = useState('stats');
-  const [combatSubTab, setCombatSubTab] = useState('actions');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedItems, setExpandedItems] = useState({});
-  const [concentration, setConcentration] = useState(null);
-  const [sessionNote, setSessionNote] = useState('');
-  const [notification, setNotification] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [githubConfig, setGithubConfig] = useState({ 
-    token: '', 
-    repo: '', 
-    charPath: 'characters/finn.json', 
-    notePath: 'session-notes/' 
-  });
-
-  const appId = typeof __app_id !== 'undefined' ? __app_id : 'dnd-tracker-v1';
-
-  // Persistence
-  useEffect(() => {
-    const saved = localStorage.getItem(`${appId}_char`);
-    if (saved) setCharacter(JSON.parse(saved));
-    const savedConf = localStorage.getItem(`${appId}_gh`);
-    if (savedConf) setGithubConfig(JSON.parse(savedConf));
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(`${appId}_char`, JSON.stringify(character));
-  }, [character]);
-
-  const notify = (msg, type = 'info') => {
-    setNotification({ msg, type });
-    setTimeout(() => setNotification(null), 3000);
-  };
-
-  // --- GitHub Functions ---
-  const getFileSha = async (path) => {
-    if (!githubConfig.token || !githubConfig.repo) return null;
-    const url = `https://api.github.com/repos/${githubConfig.repo}/contents/${path}`;
-    const res = await fetchWithRetry(url, {
-      headers: { Authorization: `token ${githubConfig.token}` }
-    });
-    if (res.status === 404) return null;
-    const data = await res.json();
-    return data.sha;
-  };
-
-  const syncToGithub = async (type = 'char') => {
-    if (!githubConfig.token || !githubConfig.repo) {
-      notify("Check je GitHub instellingen!", "error");
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const path = type === 'char' ? githubConfig.charPath : `${githubConfig.notePath}${new Date().toISOString().split('T')[0]}.md`;
-      const content = type === 'char' ? JSON.stringify(character, null, 2) : sessionNote;
-      const sha = await getFileSha(path);
-      
-      const url = `https://api.github.com/repos/${githubConfig.repo}/contents/${path}`;
-      const res = await fetchWithRetry(url, {
-        method: 'PUT',
-        headers: { 
-          Authorization: `token ${githubConfig.token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: type === 'char' ? `Update character ${character.character_identity.name}` : `Session note ${new Date().toLocaleDateString()}`,
-          content: btoa(unescape(encodeURIComponent(content))), // Handle unicode
-          sha: sha || undefined
-        })
-      });
-
-      if (res.ok) {
-        notify(`${type === 'char' ? 'Karakter' : 'Notitie'} opgeslagen naar GitHub!`, "success");
-        if (type === 'note') setSessionNote('');
-      }
-    } catch (err) {
-      notify(`Sync mislukt: ${err.message}`, "error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadFromGithub = async () => {
-    if (!githubConfig.token || !githubConfig.repo) return;
-    setIsLoading(true);
-    try {
-      const url = `https://api.github.com/repos/${githubConfig.repo}/contents/${githubConfig.charPath}`;
-      const res = await fetchWithRetry(url, {
-        headers: { Authorization: `token ${githubConfig.token}` }
-      });
-      if (!res.ok) throw new Error("Bestand niet gevonden");
-      const data = await res.json();
-      const decoded = decodeURIComponent(escape(atob(data.content)));
-      setCharacter(JSON.parse(decoded));
-      notify("Karakter succesvol geladen!", "success");
-    } catch (err) {
-      notify(`Laden mislukt: ${err.message}`, "error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // --- UI Handlers ---
-  const updateHP = (amount) => {
-    setCharacter(prev => ({
-      ...prev,
-      combat_stats: {
-        ...prev.combat_stats,
-        hp: {
-          ...prev.combat_stats.hp,
-          current: Math.min(prev.combat_stats.hp.max, Math.max(0, prev.combat_stats.hp.current + amount))
-        }
-      }
-    }));
-  };
-
-  const handleRest = (type) => {
-    setCharacter(prev => {
-      const n = JSON.parse(JSON.stringify(prev));
-      if (type === 'long') {
-        n.combat_stats.hp.current = n.combat_stats.hp.max;
-        setConcentration(null);
-      }
-      Object.keys(n.spellcasting.slots).forEach(l => n.spellcasting.slots[l].used = 0);
-      return n;
-    });
-    notify(`${type === 'long' ? 'Long' : 'Short'} rest voltooid!`, "success");
-  };
-
-  return (
-    <div className="min-h-screen font-sans text-stone-800 pb-24 select-none" style={{ backgroundColor: COLORS.bg }}>
-      {/* Dynamic Header */}
-      <header className="sticky top-0 z-50 shadow-sm p-4 flex justify-between items-center" style={{ backgroundColor: COLORS.peach }}>
-        <div className="flex flex-col">
-           <h1 className="font-bold text-lg flex items-center gap-2" style={{ color: COLORS.brown }}>
-            <Sword size={20} /> {character.character_identity.name}
-          </h1>
-          <span className="text-[10px] uppercase font-bold opacity-70 tracking-tighter">Level {character.character_identity.level} {character.character_identity.class}</span>
-        </div>
-        
-        <div className="flex gap-2">
-           <button 
-            onClick={() => setMode(mode === 'play' ? 'edit' : 'play')}
-            className="p-2 rounded-full bg-white/30 backdrop-blur-sm"
-          >
-            {mode === 'play' ? <Edit2 size={18} /> : <Play size={18} />}
-          </button>
-          <button 
-            onClick={() => syncToGithub('char')}
-            disabled={isLoading}
-            className={`p-2 rounded-full bg-white/30 backdrop-blur-sm ${isLoading ? 'animate-spin' : ''}`}
-          >
-            <Upload size={18} />
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-md mx-auto p-4 space-y-4">
-        {mode === 'edit' ? (
-          <section className="space-y-4 animate-in fade-in slide-in-from-top-4">
-            {/* GitHub Config */}
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-orange-100">
-              <h2 className="font-bold mb-4 flex items-center gap-2" style={{ color: COLORS.brown }}><Github size={18}/> GitHub Sync</h2>
-              <div className="space-y-3">
-                <input 
-                  type="password" placeholder="Personal Access Token" 
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50 text-xs"
-                  value={githubConfig.token}
-                  onChange={e => {
-                    const nc = {...githubConfig, token: e.target.value};
-                    setGithubConfig(nc);
-                    localStorage.setItem(`${appId}_gh`, JSON.stringify(nc));
-                  }}
-                />
-                <input 
-                  type="text" placeholder="User/Repo (bijv: finn/dnd-vault)" 
-                  className="w-full p-3 rounded-xl border border-stone-200 bg-stone-50 text-xs"
-                  value={githubConfig.repo}
-                  onChange={e => {
-                    const nc = {...githubConfig, repo: e.target.value};
-                    setGithubConfig(nc);
-                    localStorage.setItem(`${appId}_gh`, JSON.stringify(nc));
-                  }}
-                />
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={loadFromGithub} className="flex-1 py-3 bg-stone-100 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
-                    <Download size={14} /> Laad Data
-                  </button>
-                  <button onClick={() => syncToGithub('char')} className="flex-1 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2" style={{ backgroundColor: COLORS.peach, color: COLORS.brown }}>
-                    <Upload size={14} /> Opslaan
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-5 rounded-3xl shadow-sm border border-orange-100">
-               <h2 className="font-bold mb-3 flex items-center gap-2" style={{ color: COLORS.brown }}><Edit2 size={18}/> Raw Data</h2>
-               <textarea 
-                className="w-full h-64 p-3 text-[10px] bg-stone-50 rounded-xl border border-stone-200 font-mono"
-                value={JSON.stringify(character, null, 2)}
-                onChange={e => {
-                  try { setCharacter(JSON.parse(e.target.value)); } catch(e){}
-                }}
-              />
-            </div>
-          </section>
-        ) : (
-          <section className="space-y-4 animate-in fade-in">
-            {/* HP & AC */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white p-5 rounded-3xl shadow-sm flex flex-col items-center border border-orange-50">
-                <span className="text-[10px] font-black uppercase text-stone-400 mb-2">Hit Points</span>
-                <div className="flex items-center gap-4">
-                  <button onClick={() => updateHP(-1)} className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-xl font-bold active:scale-90 transition-transform">-</button>
-                  <span className="text-4xl font-black">{character.combat_stats.hp.current}</span>
-                  <button onClick={() => updateHP(1)} className="w-10 h-10 rounded-full bg-stone-100 flex items-center justify-center text-xl font-bold active:scale-90 transition-transform">+</button>
-                </div>
-                <div className="mt-2 text-[10px] font-bold text-stone-400">MAX {character.combat_stats.hp.max} • TEMP {character.combat_stats.hp.temp}</div>
-              </div>
-              <div className="bg-white p-5 rounded-3xl shadow-sm flex flex-col items-center border border-orange-50">
-                <span className="text-[10px] font-black uppercase text-stone-400 mb-2">Armor Class</span>
-                <div className="text-4xl font-black my-1">{character.combat_stats.armor_class}</div>
-                <div className="mt-2 text-[10px] font-bold text-stone-400">INIT +{character.combat_stats.initiative}</div>
-              </div>
-            </div>
-
-            {activeTab === 'stats' ? (
-              <div className="space-y-4 animate-in fade-in">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-2">
-                  {Object.entries(character.ability_scores).map(([stat, val]) => (
-                    <div key={stat} className="bg-white/40 p-2 rounded-2xl flex flex-col items-center border border-white">
-                      <span className="text-[9px] font-black uppercase text-stone-500">{stat}</span>
-                      <span className="text-sm font-bold">{val} <span className="text-[10px] opacity-50">({Math.floor((val-10)/2) >= 0 ? '+' : ''}{Math.floor((val-10)/2)})</span></span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Skill List */}
-                <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-orange-50">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold flex items-center gap-2" style={{ color: COLORS.brown }}><Search size={16}/> Skills</h3>
-                    <div className="relative">
-                      <input 
-                        type="text" placeholder="Zoeken..." 
-                        className="text-xs p-2 pl-8 rounded-full bg-stone-100 border-none w-28 focus:w-40 transition-all"
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                      />
-                      <Search className="absolute left-2.5 top-2.5 text-stone-400" size={12} />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {Object.entries(character.skills)
-                      .filter(([name]) => name.toLowerCase().includes(searchQuery.toLowerCase()))
-                      .map(([name, mod]) => (
-                        <div key={name} className="flex justify-between items-center py-2 px-1 border-b border-stone-50">
-                          <span className="text-sm capitalize text-stone-600">{name.replace(/_/g, ' ')}</span>
-                          <span className="text-sm font-bold">{mod >= 0 ? `+${mod}` : mod}</span>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4 animate-in fade-in">
-                {/* Rest & Concentration */}
-                <div className="flex gap-2">
-                  <button onClick={() => handleRest('short')} className="flex-1 py-4 bg-white rounded-3xl shadow-sm border border-stone-50 text-xs font-bold flex items-center justify-center gap-2">
-                    <Clock size={16} /> Short Rest
-                  </button>
-                  <button onClick={() => handleRest('long')} className="flex-1 py-4 bg-white rounded-3xl shadow-sm border border-stone-50 text-xs font-bold flex items-center justify-center gap-2" style={{ color: COLORS.brown }}>
-                    <RefreshCw size={16} /> Long Rest
-                  </button>
-                </div>
-
-                <div className={`p-5 rounded-[2rem] border-2 transition-all flex justify-between items-center ${concentration ? 'bg-amber-50 border-amber-200' : 'bg-white border-dashed border-stone-200'}`}>
-                  <div>
-                    <span className="text-[9px] font-black uppercase tracking-widest text-stone-400">Concentration</span>
-                    <p className="font-bold text-sm">{concentration || 'Geen actieve spell'}</p>
-                  </div>
-                  {concentration && <button onClick={() => setConcentration(null)} className="p-2 bg-amber-100 rounded-full"><X size={14}/></button>}
-                </div>
-
-                {/* Session Notes for Obsidian */}
-                <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-orange-50 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase text-stone-400 flex items-center gap-2"><FileText size={12}/> Session Notes (Markdown)</span>
-                    <button 
-                      onClick={() => syncToGithub('note')} 
-                      disabled={!sessionNote || isLoading}
-                      className="p-1.5 rounded-lg bg-stone-100 disabled:opacity-30"
-                    >
-                      <Save size={14} />
-                    </button>
-                  </div>
-                  <textarea 
-                    className="w-full h-24 p-3 text-xs bg-stone-50 rounded-2xl border-none focus:ring-1 focus:ring-peach"
-                    placeholder="Wat gebeurt er deze beurt?"
-                    value={sessionNote}
-                    onChange={e => setSessionNote(e.target.value)}
-                  />
-                </div>
-
-                {/* Action Economy Tabs */}
-                <div className="flex bg-stone-200/40 p-1.5 rounded-2xl">
-                  {['actions', 'bonus actions', 'reactions'].map(tab => (
-                    <button 
-                      key={tab}
-                      onClick={() => setCombatSubTab(tab)}
-                      className={`flex-1 py-2 text-[9px] font-bold uppercase rounded-xl transition-all ${combatSubTab === tab ? 'bg-white shadow-sm' : 'text-stone-500'}`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Items List */}
-                <div className="space-y-2 pb-10">
-                  {Object.values(character.spellcasting.spells).flat().filter(s => {
-                    const ct = s.casting_time?.toLowerCase() || '1 action';
-                    if (combatSubTab === 'actions') return ct.includes('action') && !ct.includes('bonus');
-                    if (combatSubTab === 'bonus actions') return ct.includes('bonus');
-                    if (combatSubTab === 'reactions') return ct.includes('reaction');
-                    return false;
-                  }).map((item, idx) => (
-                    <div key={idx} className="bg-white rounded-[1.5rem] shadow-sm border border-stone-100 overflow-hidden">
-                      <div className="p-4 flex justify-between items-center" onClick={() => setExpandedItems(prev => ({...prev, [item.name]: !prev[item.name]}))}>
-                        <div className="flex items-center gap-3">
-                           {item.concentration && <Zap size={14} className="text-amber-500" />}
-                           <span className="font-bold text-sm">{item.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {item.concentration && (
-                            <button onClick={(e) => { e.stopPropagation(); setConcentration(item.name); }} className="p-1.5 rounded-lg bg-orange-50 text-orange-600"><Zap size={12}/></button>
-                          )}
-                          {expandedItems[item.name] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </div>
-                      </div>
-                      {expandedItems[item.name] && (
-                        <div className="px-4 pb-4 animate-in slide-in-from-top-2">
-                           <p className="text-[11px] text-stone-500 bg-stone-50 p-3 rounded-xl leading-relaxed">{item.description}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-        )}
-      </main>
-
-      {/* Notifications */}
-      {notification && (
-        <div className="fixed bottom-24 left-4 right-4 z-[100] animate-in slide-in-from-bottom-4">
-          <div className={`p-4 rounded-2xl shadow-lg flex items-center gap-3 border ${notification.type === 'error' ? 'bg-red-50 border-red-100 text-red-600' : 'bg-green-50 border-green-100 text-green-700'}`}>
-            {notification.type === 'error' ? <AlertCircle size={18}/> : <CheckCircle2 size={18}/>}
-            <span className="text-xs font-bold">{notification.msg}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Persistent Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 p-3 pb-8 flex justify-around items-center z-50">
-        <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'stats' ? 'text-stone-800' : 'text-stone-300'}`}>
-          <div className={`p-3 rounded-2xl ${activeTab === 'stats' ? 'bg-peach shadow-md' : ''}`}><Heart size={20} /></div>
-          <span className="text-[9px] font-black uppercase tracking-widest">Stats</span>
-        </button>
-        <button onClick={() => setActiveTab('combat')} className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'combat' ? 'text-stone-800' : 'text-stone-300'}`}>
-          <div className={`p-3 rounded-2xl ${activeTab === 'combat' ? 'bg-peach shadow-md' : ''}`}><Sword size={20} /></div>
-          <span className="text-[9px] font-black uppercase tracking-widest">Combat</span>
-        </button>
-      </nav>
-
-      <style>{`
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Combat Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #FDF6F4; }
+        .peach-bg { background-color: #F4BEAE; }
+        .brown-text { color: #785A3C; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-in { animation: fadeIn 0.3s ease-out; }
-        .slide-in-from-top-4 { animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .slide-in-from-bottom-4 { animation: slideIn 0.3s ease-out; transform: translateY(0); }
-      `}</style>
-    </div>
-  );
-};
+        .animate-fade { animation: fadeIn 0.3s ease-out; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+        
+        // Icons setup
+        const Icon = ({ name, size = 20, className = "" }) => {
+            const LucideIcon = lucide[name.charAt(0).toUpperCase() + name.slice(1).replace(/-([a-z])/g, g => g[1].toUpperCase())];
+            return LucideIcon ? <LucideIcon size={size} className={className} /> : null;
+        };
+
+        const DEFAULT_CHARACTER = {
+            character_identity: { name: "Finn", class: "Wizard", level: 3 },
+            ability_scores: { str: 8, dex: 14, con: 12, int: 16, wis: 13, cha: 10 },
+            combat_stats: {
+                hp: { current: 14, max: 14, temp: 0 },
+                armor_class: 12,
+                initiative: 2,
+                proficiency_bonus: 2,
+                speed: "30 ft."
+            },
+            skills: { athletics: -1, stealth: 2, arcana: 5, perception: 1 },
+            spellcasting: {
+                slots: { level_1: { max: 4, used: 0 }, level_2: { max: 2, used: 0 } },
+                spells: {
+                    actions: [{ name: "Fire Bolt", description: "Werp een vuurbal." }, { name: "Magic Missile", description: "Drie magische pijlen." }],
+                    bonus: [{ name: "Misty Step", description: "Teleporteer 30ft." }],
+                    reactions: [{ name: "Shield", description: "+5 AC tot einde beurt." }]
+                }
+            }
+        };
+
+        const App = () => {
+            const [character, setCharacter] = useState(DEFAULT_CHARACTER);
+            const [mode, setMode] = useState('play');
+            const [activeTab, setActiveTab] = useState('stats');
+            const [combatSubTab, setCombatSubTab] = useState('actions');
+            const [githubConfig, setGithubConfig] = useState({ token: '', repo: 'Mosa-1994/dnd-character-app', path: 'characters/data.json' });
+            const [sessionNote, setSessionNote] = useState('');
+            const [notification, setNotification] = useState(null);
+
+            useEffect(() => {
+                const saved = localStorage.getItem('dnd_app_data');
+                if (saved) setCharacter(JSON.parse(saved));
+                const savedConf = localStorage.getItem('dnd_app_gh');
+                if (savedConf) setGithubConfig(JSON.parse(savedConf));
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('dnd_app_data', JSON.stringify(character));
+            }, [character]);
+
+            const notify = (msg, type = 'success') => {
+                setNotification({ msg, type });
+                setTimeout(() => setNotification(null), 3000);
+            };
+
+            const updateHP = (val) => {
+                setCharacter(prev => ({
+                    ...prev,
+                    combat_stats: {
+                        ...prev.combat_stats,
+                        hp: { ...prev.combat_stats.hp, current: Math.min(prev.combat_stats.hp.max, Math.max(0, prev.combat_stats.hp.current + val)) }
+                    }
+                }));
+            };
+
+            const syncToGithub = async (type = 'char') => {
+                if (!githubConfig.token) return notify("Token vereist!", "error");
+                
+                const path = type === 'char' ? githubConfig.path : `session-notes/${new Date().toISOString().split('T')[0]}.md`;
+                const content = type === 'char' ? JSON.stringify(character, null, 2) : sessionNote;
+                
+                try {
+                    const getRes = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/${path}`, {
+                        headers: { Authorization: `token ${githubConfig.token}` }
+                    });
+                    const fileData = getRes.ok ? await getRes.json() : null;
+
+                    const res = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/${path}`, {
+                        method: 'PUT',
+                        headers: { Authorization: `token ${githubConfig.token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: `Update via D&D Tracker: ${type}`,
+                            content: btoa(unescape(encodeURIComponent(content))),
+                            sha: fileData ? fileData.sha : undefined
+                        })
+                    });
+
+                    if (res.ok) {
+                        notify(`${type === 'char' ? 'Data' : 'Notitie'} opgeslagen!`);
+                        if (type === 'note') setSessionNote('');
+                    } else {
+                        throw new Error();
+                    }
+                } catch (e) {
+                    notify("Sync mislukt", "error");
+                }
+            };
+
+            return (
+                <div className="min-h-screen pb-24">
+                    {/* Header */}
+                    <header className="peach-bg p-4 sticky top-0 z-40 shadow-sm flex justify-between items-center">
+                        <div>
+                            <h1 className="font-extrabold brown-text text-lg">{character.character_identity.name}</h1>
+                            <p className="text-[10px] uppercase font-bold opacity-60">Level {character.character_identity.level} {character.character_identity.class}</p>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={() => setMode(mode === 'play' ? 'edit' : 'play')} className="p-2 bg-white/30 rounded-full">
+                                <Icon name={mode === 'play' ? 'edit-2' : 'play'} size={18} />
+                            </button>
+                            <button onClick={() => syncToGithub('char')} className="p-2 bg-white/30 rounded-full">
+                                <Icon name="upload" size={18} />
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="p-4 max-w-md mx-auto space-y-4">
+                        {mode === 'edit' ? (
+                            <div className="space-y-4 animate-fade">
+                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-orange-100">
+                                    <h2 className="font-bold mb-4 brown-text flex items-center gap-2"><Icon name="github" size={16}/> GitHub Sync</h2>
+                                    <div className="space-y-3">
+                                        <input type="password" placeholder="GitHub Token" className="w-full p-3 rounded-xl bg-stone-50 border border-stone-100 text-xs" 
+                                            value={githubConfig.token} onChange={e => {
+                                                const c = {...githubConfig, token: e.target.value};
+                                                setGithubConfig(c);
+                                                localStorage.setItem('dnd_app_gh', JSON.stringify(c));
+                                            }} />
+                                        <input type="text" placeholder="Repo (Mosa-1994/dnd-character-app)" className="w-full p-3 rounded-xl bg-stone-50 border border-stone-100 text-xs" 
+                                            value={githubConfig.repo} onChange={e => setGithubConfig({...githubConfig, repo: e.target.value})} />
+                                    </div>
+                                </div>
+                                <div className="bg-white p-5 rounded-3xl shadow-sm border border-orange-100">
+                                    <h2 className="font-bold mb-2 brown-text text-sm">JSON Data</h2>
+                                    <textarea className="w-full h-64 p-3 text-[10px] font-mono bg-stone-50 rounded-xl border-none" 
+                                        value={JSON.stringify(character, null, 2)} onChange={e => { try { setCharacter(JSON.parse(e.target.value)) } catch(e){} }} />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-4 animate-fade">
+                                {/* HP & AC */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white p-5 rounded-[2rem] shadow-sm text-center border border-orange-50">
+                                        <span className="text-[10px] font-black text-stone-300 uppercase">Hit Points</span>
+                                        <div className="flex items-center justify-center gap-4 my-2">
+                                            <button onClick={() => updateHP(-1)} className="w-8 h-8 rounded-full bg-stone-50 font-bold">-</button>
+                                            <span className="text-3xl font-black">{character.combat_stats.hp.current}</span>
+                                            <button onClick={() => updateHP(1)} className="w-8 h-8 rounded-full bg-stone-50 font-bold">+</button>
+                                        </div>
+                                        <span className="text-[10px] font-bold text-stone-400">MAX {character.combat_stats.hp.max}</span>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-[2rem] shadow-sm text-center border border-orange-50">
+                                        <span className="text-[10px] font-black text-stone-300 uppercase">Armor Class</span>
+                                        <div className="text-4xl font-black my-2">{character.combat_stats.armor_class}</div>
+                                        <span className="text-[10px] font-bold text-stone-400">SPEED {character.combat_stats.speed}</span>
+                                    </div>
+                                </div>
+
+                                {activeTab === 'stats' ? (
+                                    <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-orange-50">
+                                        <h3 className="font-bold mb-4 brown-text flex items-center gap-2"><Icon name="shield" size={16}/> Skills</h3>
+                                        <div className="space-y-3">
+                                            {Object.entries(character.skills).map(([s, v]) => (
+                                                <div key={s} className="flex justify-between items-center text-sm border-b border-stone-50 pb-2">
+                                                    <span className="capitalize text-stone-600">{s}</span>
+                                                    <span className="font-black">{v >= 0 ? '+' : ''}{v}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="bg-white p-5 rounded-3xl shadow-sm border border-orange-50 space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[10px] font-black text-stone-300 uppercase">Sessie Notitie</span>
+                                                <button onClick={() => syncToGithub('note')} className="p-1.5 bg-stone-50 rounded-lg"><Icon name="save" size={14}/></button>
+                                            </div>
+                                            <textarea className="w-full h-20 text-xs p-2 bg-stone-50 rounded-xl border-none focus:ring-0" 
+                                                placeholder="Schrijf hier je Obsidian note..." value={sessionNote} onChange={e => setSessionNote(e.target.value)} />
+                                        </div>
+                                        <div className="flex bg-stone-200/50 p-1 rounded-2xl">
+                                            {['actions', 'bonus', 'reactions'].map(t => (
+                                                <button key={t} onClick={() => setCombatSubTab(t)} 
+                                                    className={`flex-1 py-2 text-[10px] font-bold uppercase rounded-xl transition-all ${combatSubTab === t ? 'bg-white shadow-sm' : 'text-stone-400'}`}>
+                                                    {t}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="space-y-2">
+                                            {character.spellcasting.spells[combatSubTab]?.map((s, i) => (
+                                                <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-stone-50">
+                                                    <div className="font-bold text-sm">{s.name}</div>
+                                                    <div className="text-[11px] text-stone-400 mt-1">{s.description}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Nav */}
+                    <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-t border-stone-100 p-3 pb-8 flex justify-around items-center">
+                        <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center gap-1 ${activeTab === 'stats' ? 'brown-text' : 'text-stone-300'}`}>
+                            <div className={`p-3 rounded-2xl ${activeTab === 'stats' ? 'peach-bg shadow-md' : ''}`}><Icon name="heart" /></div>
+                            <span className="text-[9px] font-black uppercase tracking-widest">Stats</span>
+                        </button>
+                        <button onClick={() => setActiveTab('combat')} className={`flex flex-col items-center gap-1 ${activeTab === 'combat' ? 'brown-text' : 'text-stone-300'}`}>
+                            <div className={`p-3 rounded-2xl ${activeTab === 'combat' ? 'peach-bg shadow-md' : ''}`}><Icon name="sword" /></div>
+                            <span className="text-[9px] font-black uppercase tracking-widest">Combat</span>
+                        </button>
+                    </nav>
+
+                    {/* Notif */}
+                    {notification && (
+                        <div className="fixed bottom-24 left-4 right-4 z-50 animate-fade">
+                            <div className={`p-4 rounded-2xl shadow-xl text-xs font-bold text-center border ${notification.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
+                                {notification.msg}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        // Initialize lucide icons after render
+        setTimeout(() => lucide.createIcons(), 500);
+    </script>
+</body>
+</html>
