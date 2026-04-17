@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>D&D Combat Tracker</title>
-    <!-- Gebruik betrouwbare CDNs -->
+    <title>D&D Combat Tracker - Finn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
@@ -21,12 +19,8 @@
         .peach-bg { background-color: #F4BEAE; }
         .brown-text { color: #785A3C; }
         .peach-border { border-color: #F4BEAE; }
-        
-        /* Simpele animaties */
-        .fade-enter { opacity: 0; transform: translateY(10px); }
-        .fade-enter-active { opacity: 1; transform: translateY(0); transition: all 0.3s ease; }
-        
-        /* Hide scrollbars */
+        .animate-fade { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -34,42 +28,71 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useCallback } = React;
+        const { useState, useEffect, useMemo } = React;
 
-        // Robuuste Icon Component
         const Icon = ({ name, size = 20, className = "" }) => {
-            useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            }, [name]);
-
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name} style={{ width: size, height: size }} className={className}></i>;
         };
 
         const DEFAULT_DATA = {
-            character_identity: { name: "Finn", class: "Wizard", level: 3 },
-            ability_scores: { str: 8, dex: 14, con: 12, int: 16, wis: 13, cha: 10 },
-            combat_stats: {
-                hp: { current: 14, max: 14, temp: 0 },
-                armor_class: 12,
-                initiative: 2,
-                proficiency_bonus: 2,
-                speed: "30 ft."
+            "character_identity": {
+                "name": "Fionnghuala 'Finn' Swiftstep",
+                "class": "Sorcerer",
+                "level": 3,
+                "subclass": "Wild Magic Sorcery",
+                "species": "Eladrin (Variant)",
+                "background": "Noble"
             },
-            skills: { athletics: -1, acrobatics: 2, stealth: 2, arcana: 5, perception: 1, insight: 1 },
-            spellcasting: {
-                slots: { level_1: { max: 4, used: 0 }, level_2: { max: 2, used: 0 } },
-                spells: {
-                    actions: [
-                        { name: "Fire Bolt", description: "Werp een vuurbal. 1d10 damage.", casting_time: "1 Action" },
-                        { name: "Magic Missile", description: "Drie magische pijlen die altijd raken.", casting_time: "1 Action" }
+            "ability_scores": {
+                "strength": { "score": 8, "modifier": -1, "save": -1 },
+                "dexterity": { "score": 15, "modifier": 2, "save": 2 },
+                "constitution": { "score": 10, "modifier": 0, "save": 2 },
+                "intelligence": { "score": 14, "modifier": 2, "save": 2 },
+                "wisdom": { "score": 14, "modifier": 2, "save": 2 },
+                "charisma": { "score": 17, "modifier": 3, "save": 5 }
+            },
+            "combat_stats": {
+                "hp": { "current": 14, "max": 14, "temp": 0 },
+                "armor_class": 12,
+                "initiative": 2,
+                "speed": "30 ft. (Walking)",
+                "proficiency_bonus": 2,
+                "hit_dice": "3d6",
+                "passive_perception": 14,
+                "passive_insight": 14,
+                "passive_investigation": 12
+            },
+            "skills": {
+                "acrobatics": 2, "animal_handling": 2, "arcana": 4, "athletics": -1,
+                "deception": 3, "history": 2, "insight": 4, "intimidation": 3,
+                "investigation": 2, "medicine": 2, "nature": 2, "perception": 4,
+                "performance": 3, "persuasion": 5, "religion": 2, "sleight_of_hand": 2,
+                "stealth": 2, "survival": 2
+            },
+            "spellcasting": {
+                "ability": "Charisma",
+                "save_dc": 13,
+                "attack_bonus": 5,
+                "slots": { "level_1": 4, "level_2": 2 },
+                "used_slots": { "level_1": 0, "level_2": 0 },
+                "spells": {
+                    "cantrips": [
+                        { "name": "Prestidigitation", "range": "10 ft.", "components": "V, S", "duration": "1 hour", "description": "Kleine magische trucjes." },
+                        { "name": "Fire Bolt", "range": "120 ft.", "components": "V, S", "duration": "Instantaneous", "damage": "1d10 Fire", "description": "Werp een vuurbal." },
+                        { "name": "Mage Hand", "range": "30 ft.", "components": "V, S", "duration": "1 minute", "description": "Een zwevende hand." },
+                        { "name": "Minor Illusion", "range": "30 ft.", "components": "S, M", "duration": "1 minute", "description": "Creëer een geluid of beeld." }
                     ],
-                    bonus: [
-                        { name: "Misty Step", description: "Teleporteer 30ft naar een plek die je ziet.", casting_time: "1 Bonus Action" }
+                    "level_1": [
+                        { "name": "Chromatic Orb", "range": "90 ft.", "components": "V, S, M", "duration": "Instantaneous", "description": "Bol van energie." },
+                        { "name": "Magic Missile", "range": "120 ft.", "components": "V, S", "duration": "Instantaneous", "description": "Drie magische pijlen." },
+                        { "name": "Shield", "casting_time": "1 Reaction", "range": "Self", "components": "V, S", "duration": "1 round", "description": "+5 AC." },
+                        { "name": "Burning Hands", "range": "Self (15 ft. cone)", "components": "V, S", "duration": "Instantaneous", "save": "DEX 13", "description": "Kegel van vuur." },
+                        { "name": "Witch Bolt", "range": "60 ft.", "components": "V, S, M", "duration": "Concentration, up to 1 minute", "description": "Lijn van bliksem." }
                     ],
-                    reactions: [
-                        { name: "Shield", description: "+5 AC tot je volgende beurt.", casting_time: "1 Reaction" }
+                    "level_2": [
+                        { "name": "Detect Thoughts", "range": "Self", "components": "V, S, M", "duration": "Concentration, up to 1 minute", "description": "Lees gedachten." },
+                        { "name": "Misty Step", "casting_time": "1 Bonus Action", "range": "Self", "components": "V", "duration": "Instantaneous", "description": "Teleporteer 30ft." }
                     ]
                 }
             }
@@ -80,26 +103,20 @@
             const [mode, setMode] = useState('play');
             const [activeTab, setActiveTab] = useState('stats');
             const [combatSubTab, setCombatSubTab] = useState('actions');
-            const [githubConfig, setGithubConfig] = useState({ 
-                token: '', 
-                repo: 'Mosa-1994/dnd-character-app', 
-                path: 'characters/data.json' 
-            });
+            const [githubConfig, setGithubConfig] = useState({ token: '', repo: 'Mosa-1994/dnd-character-app', path: 'characters/data.json' });
             const [sessionNote, setSessionNote] = useState('');
             const [notification, setNotification] = useState(null);
             const [loading, setLoading] = useState(false);
 
-            // Laden uit LocalStorage
             useEffect(() => {
-                const saved = localStorage.getItem('dnd_combat_v1');
+                const saved = localStorage.getItem('dnd_finn_data');
                 if (saved) setCharacter(JSON.parse(saved));
-                const conf = localStorage.getItem('dnd_config_v1');
+                const conf = localStorage.getItem('dnd_finn_gh');
                 if (conf) setGithubConfig(JSON.parse(conf));
             }, []);
 
-            // Opslaan in LocalStorage
             useEffect(() => {
-                localStorage.setItem('dnd_combat_v1', JSON.stringify(character));
+                localStorage.setItem('dnd_finn_data', JSON.stringify(character));
             }, [character]);
 
             const notify = (msg, type = 'success') => {
@@ -112,170 +129,192 @@
                     ...prev,
                     combat_stats: {
                         ...prev.combat_stats,
-                        hp: { 
-                            ...prev.combat_stats.hp, 
-                            current: Math.min(prev.combat_stats.hp.max, Math.max(0, prev.combat_stats.hp.current + val)) 
-                        }
+                        hp: { ...prev.combat_stats.hp, current: Math.min(prev.combat_stats.hp.max, Math.max(0, prev.combat_stats.hp.current + val)) }
                     }
                 }));
             };
 
+            const toggleSlot = (lvl, idx) => {
+                setCharacter(prev => {
+                    const currentUsed = prev.spellcasting.used_slots[lvl] || 0;
+                    const newVal = (idx < currentUsed) ? idx : idx + 1;
+                    return {
+                        ...prev,
+                        spellcasting: {
+                            ...prev.spellcasting,
+                            used_slots: { ...prev.spellcasting.used_slots, [lvl]: newVal }
+                        }
+                    };
+                });
+            };
+
+            const handleRest = (type) => {
+                setCharacter(prev => {
+                    const n = JSON.parse(JSON.stringify(prev));
+                    if (type === 'long') n.combat_stats.hp.current = n.combat_stats.hp.max;
+                    n.spellcasting.used_slots = { level_1: 0, level_2: 0 };
+                    return n;
+                });
+                notify(`${type === 'long' ? 'Long' : 'Short'} rest voltooid!`);
+            };
+
             const syncToGithub = async (type = 'char') => {
-                if (!githubConfig.token) return notify("Vul eerst je GitHub token in!", "error");
+                if (!githubConfig.token) return notify("GitHub Token ontbreekt!", "error");
                 setLoading(true);
-                
                 const path = type === 'char' ? githubConfig.path : `session-notes/${new Date().toISOString().split('T')[0]}.md`;
                 const content = type === 'char' ? JSON.stringify(character, null, 2) : sessionNote;
-                
                 try {
-                    // 1. Check of bestand bestaat (voor de SHA)
                     const getRes = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/${path}`, {
                         headers: { 'Authorization': `token ${githubConfig.token}` }
                     });
-                    const existingFile = getRes.ok ? await getRes.json() : null;
-
-                    // 2. Schrijf bestand
+                    const existing = getRes.ok ? await getRes.json() : null;
                     const res = await fetch(`https://api.github.com/repos/${githubConfig.repo}/contents/${path}`, {
                         method: 'PUT',
-                        headers: { 
-                            'Authorization': `token ${githubConfig.token}`,
-                            'Content-Type': 'application/json' 
-                        },
+                        headers: { 'Authorization': `token ${githubConfig.token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            message: `Update via Tracker: ${type}`,
+                            message: `Update ${type}`,
                             content: btoa(unescape(encodeURIComponent(content))),
-                            sha: existingFile ? existingFile.sha : undefined
+                            sha: existing ? existing.sha : undefined
                         })
                     });
-
-                    if (res.ok) {
-                        notify(type === 'char' ? "Karakter gesynchroniseerd!" : "Notitie opgeslagen!");
-                        if (type === 'note') setSessionNote('');
-                    } else {
-                        const err = await res.json();
-                        notify(`Fout: ${err.message}`, "error");
-                    }
-                } catch (e) {
-                    notify("Netwerkfout bij sync", "error");
-                } finally {
-                    setLoading(false);
-                }
+                    if (res.ok) { notify("Sync geslaagd!"); if (type === 'note') setSessionNote(''); }
+                } catch (e) { notify("Sync mislukt", "error"); }
+                setLoading(false);
             };
 
+            // Categorize spells for tabs
+            const categorizedSpells = useMemo(() => {
+                const all = Object.values(character.spellcasting.spells).flat();
+                return {
+                    actions: all.filter(s => !(s.casting_time || "").toLowerCase().includes("bonus") && !(s.casting_time || "").toLowerCase().includes("reaction")),
+                    bonus: all.filter(s => (s.casting_time || "").toLowerCase().includes("bonus")),
+                    reactions: all.filter(s => (s.casting_time || "").toLowerCase().includes("reaction"))
+                };
+            }, [character]);
+
             return (
-                <div className="min-h-screen flex flex-col">
-                    {/* Header */}
+                <div className="min-h-screen flex flex-col pb-24">
                     <header className="peach-bg p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
-                        <div>
-                            <h1 className="font-extrabold brown-text text-xl leading-none">{character.character_identity.name}</h1>
-                            <p className="text-[10px] font-bold opacity-70 uppercase mt-1">Lvl {character.character_identity.level} {character.character_identity.class}</p>
+                        <div className="max-w-[70%]">
+                            <h1 className="font-extrabold brown-text text-lg truncate leading-tight">{character.character_identity.name}</h1>
+                            <p className="text-[10px] font-bold opacity-70 uppercase tracking-tighter">Lvl {character.character_identity.level} {character.character_identity.subclass}</p>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={() => setMode(mode === 'play' ? 'edit' : 'play')} className="p-2.5 bg-white/40 rounded-full active:scale-95 transition-transform">
-                                <Icon name={mode === 'play' ? 'edit-3' : 'play'} size={20} />
-                            </button>
-                            <button onClick={() => syncToGithub('char')} className={`p-2.5 bg-white/40 rounded-full active:scale-95 transition-transform ${loading ? 'animate-spin' : ''}`}>
-                                <Icon name="github" size={20} />
-                            </button>
+                            <button onClick={() => setMode(mode === 'play' ? 'edit' : 'play')} className="p-2.5 bg-white/40 rounded-full active:scale-95"><Icon name={mode === 'play' ? 'edit-3' : 'play'} size={18} /></button>
+                            <button onClick={() => syncToGithub('char')} className={`p-2.5 bg-white/40 rounded-full active:scale-95 ${loading ? 'animate-spin' : ''}`}><Icon name="github" size={18} /></button>
                         </div>
                     </header>
 
                     <main className="flex-1 p-4 max-w-lg mx-auto w-full space-y-4">
                         {mode === 'edit' ? (
-                            <div className="space-y-4 fade-enter-active">
-                                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-orange-100">
-                                    <h2 className="font-bold mb-4 brown-text flex items-center gap-2"><Icon name="settings" size={18}/> Instellingen</h2>
-                                    <div className="space-y-3">
-                                        <label className="block">
-                                            <span className="text-[10px] font-bold text-stone-400 uppercase ml-1">GitHub Token</span>
-                                            <input type="password" placeholder="ghp_..." className="w-full mt-1 p-3 rounded-2xl bg-stone-50 border-none text-xs focus:ring-2 focus:ring-orange-200" 
-                                                value={githubConfig.token} onChange={e => {
-                                                    const c = {...githubConfig, token: e.target.value};
-                                                    setGithubConfig(c);
-                                                    localStorage.setItem('dnd_config_v1', JSON.stringify(c));
-                                                }} />
-                                        </label>
-                                        <label className="block">
-                                            <span className="text-[10px] font-bold text-stone-400 uppercase ml-1">Repo Pad</span>
-                                            <input type="text" placeholder="User/Repo" className="w-full mt-1 p-3 rounded-2xl bg-stone-50 border-none text-xs" 
-                                                value={githubConfig.repo} onChange={e => setGithubConfig({...githubConfig, repo: e.target.value})} />
-                                        </label>
-                                    </div>
+                            <div className="space-y-4 animate-fade">
+                                <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-orange-100 space-y-3">
+                                    <h2 className="font-bold brown-text text-sm flex items-center gap-2"><Icon name="settings" size={16}/> GitHub Sync</h2>
+                                    <input type="password" placeholder="GitHub Token" className="w-full p-3 rounded-2xl bg-stone-50 border-none text-xs" 
+                                        value={githubConfig.token} onChange={e => setGithubConfig({...githubConfig, token: e.target.value})} onBlur={() => localStorage.setItem('dnd_finn_gh', JSON.stringify(githubConfig))} />
+                                    <input type="text" placeholder="Repo Pad" className="w-full p-3 rounded-2xl bg-stone-50 border-none text-xs" 
+                                        value={githubConfig.repo} onChange={e => setGithubConfig({...githubConfig, repo: e.target.value})} onBlur={() => localStorage.setItem('dnd_finn_gh', JSON.stringify(githubConfig))} />
                                 </div>
-                                <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-orange-100">
-                                    <h2 className="font-bold mb-2 brown-text text-sm">Raw JSON Data</h2>
-                                    <textarea className="w-full h-80 p-4 text-[10px] font-mono bg-stone-50 rounded-2xl border-none focus:ring-0" 
+                                <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-orange-100">
+                                    <h2 className="font-bold brown-text text-sm mb-2">Character JSON</h2>
+                                    <textarea className="w-full h-80 p-3 text-[10px] font-mono bg-stone-50 rounded-2xl border-none" 
                                         value={JSON.stringify(character, null, 2)} onChange={e => { try { setCharacter(JSON.parse(e.target.value)) } catch(e){} }} />
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-4 fade-enter-active">
-                                {/* HP & AC Widgets */}
+                            <div className="space-y-4 animate-fade">
+                                {/* HP & AC */}
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-white p-6 rounded-[2.5rem] shadow-sm text-center border border-orange-50 relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-red-300"></div>
+                                    <div className="bg-white p-5 rounded-[2.5rem] shadow-sm text-center border border-orange-50">
                                         <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Hit Points</span>
-                                        <div className="flex items-center justify-center gap-4 my-2">
-                                            <button onClick={() => updateHP(-1)} className="w-10 h-10 rounded-full bg-stone-50 brown-text font-black text-xl active:bg-orange-100 transition-colors">-</button>
-                                            <span className="text-4xl font-black text-stone-800">{character.combat_stats.hp.current}</span>
-                                            <button onClick={() => updateHP(1)} className="w-10 h-10 rounded-full bg-stone-50 brown-text font-black text-xl active:bg-orange-100 transition-colors">+</button>
+                                        <div className="flex items-center justify-center gap-4 my-1">
+                                            <button onClick={() => updateHP(-1)} className="w-9 h-9 rounded-full bg-stone-50 brown-text font-black active:bg-orange-100">-</button>
+                                            <span className="text-4xl font-black">{character.combat_stats.hp.current}</span>
+                                            <button onClick={() => updateHP(1)} className="w-9 h-9 rounded-full bg-stone-50 brown-text font-black active:bg-orange-100">+</button>
                                         </div>
                                         <span className="text-[10px] font-bold text-stone-400">MAX {character.combat_stats.hp.max}</span>
                                     </div>
-                                    <div className="bg-white p-6 rounded-[2.5rem] shadow-sm text-center border border-orange-50 relative overflow-hidden">
-                                        <div className="absolute top-0 left-0 w-full h-1 bg-blue-300"></div>
+                                    <div className="bg-white p-5 rounded-[2.5rem] shadow-sm text-center border border-orange-50">
                                         <span className="text-[10px] font-black text-stone-300 uppercase tracking-widest">Armor Class</span>
-                                        <div className="text-5xl font-black text-stone-800 my-2">{character.combat_stats.armor_class}</div>
+                                        <div className="text-5xl font-black my-1">{character.combat_stats.armor_class}</div>
                                         <span className="text-[10px] font-bold text-stone-400 uppercase tracking-tighter">Initiative +{character.combat_stats.initiative}</span>
                                     </div>
                                 </div>
 
                                 {activeTab === 'stats' ? (
-                                    <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-orange-50">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <h3 className="font-bold brown-text flex items-center gap-2"><Icon name="user" size={18}/> Skills</h3>
-                                            <div className="px-3 py-1 bg-orange-50 rounded-full text-[10px] font-bold brown-text">Prof: +{character.combat_stats.proficiency_bonus}</div>
-                                        </div>
-                                        <div className="grid grid-cols-1 gap-1">
-                                            {Object.entries(character.skills).map(([s, v]) => (
-                                                <div key={s} className="flex justify-between items-center py-3 border-b border-stone-50 last:border-0">
-                                                    <span className="capitalize text-sm font-semibold text-stone-600">{s.replace('_', ' ')}</span>
-                                                    <span className="font-black text-stone-800">{v >= 0 ? '+' : ''}{v}</span>
+                                    <div className="space-y-4">
+                                        {/* Ability Scores */}
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {Object.entries(character.ability_scores).map(([name, data]) => (
+                                                <div key={name} className="bg-white/50 p-3 rounded-2xl flex flex-col items-center border border-white">
+                                                    <span className="text-[8px] font-black uppercase text-stone-400">{name.substring(0,3)}</span>
+                                                    <span className="text-lg font-black text-stone-800">
+                                                        {data.modifier >= 0 ? '+' : ''}{data.modifier}
+                                                    </span>
+                                                    <span className="text-[9px] font-bold opacity-40">{data.score}</span>
                                                 </div>
                                             ))}
+                                        </div>
+                                        {/* Skill Matrix */}
+                                        <div className="bg-white p-6 rounded-[2.5rem] shadow-sm border border-orange-50">
+                                            <h3 className="font-bold brown-text mb-4 text-sm flex items-center gap-2"><Icon name="shield" size={16}/> Skills</h3>
+                                            <div className="grid grid-cols-1 gap-1">
+                                                {Object.entries(character.skills).sort((a,b) => b[1]-a[1]).map(([s, v]) => (
+                                                    <div key={s} className="flex justify-between items-center py-2.5 border-b border-stone-50 last:border-0">
+                                                        <span className="capitalize text-xs font-semibold text-stone-600">{s.replace(/_/g, ' ')}</span>
+                                                        <span className="font-black text-xs">{v >= 0 ? '+' : ''}{v}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="space-y-4">
-                                        {/* Obsidian Notes */}
+                                        <div className="flex gap-2">
+                                            <button onClick={() => handleRest('short')} className="flex-1 py-3 bg-white rounded-2xl shadow-sm text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"><Icon name="clock" size={14}/> Short</button>
+                                            <button onClick={() => handleRest('long')} className="flex-1 py-3 bg-white rounded-2xl shadow-sm text-[10px] font-black uppercase tracking-widest brown-text flex items-center justify-center gap-2"><Icon name="refresh-cw" size={14}/> Long</button>
+                                        </div>
+                                        {/* Spell Slots */}
+                                        <div className="flex gap-2 overflow-x-auto pb-1">
+                                            {Object.entries(character.spellcasting.slots).map(([lvl, max]) => (
+                                                <div key={lvl} className="bg-white p-3 rounded-2xl border border-orange-50 min-w-[110px]">
+                                                    <span className="text-[8px] font-black text-stone-400 uppercase block mb-2">{lvl.replace('_', ' ')}</span>
+                                                    <div className="flex gap-1.5">
+                                                        {Array.from({ length: max }).map((_, i) => (
+                                                            <div key={i} onClick={() => toggleSlot(lvl, i)} 
+                                                                className={`w-5 h-5 rounded-md border-2 transition-all ${i < (character.spellcasting.used_slots[lvl] || 0) ? 'bg-stone-300 border-stone-300' : 'border-stone-200 bg-white'}`} />
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {/* Notes */}
                                         <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-orange-50 space-y-3">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-[10px] font-black text-stone-300 uppercase tracking-wider flex items-center gap-2"><Icon name="file-text" size={12}/> Sessie Notitie</span>
+                                                <span className="text-[10px] font-black text-stone-300 uppercase flex items-center gap-2"><Icon name="file-text" size={12}/> Session Note</span>
                                                 <button onClick={() => syncToGithub('note')} className="p-2 bg-stone-50 rounded-xl active:bg-orange-100"><Icon name="save" size={16}/></button>
                                             </div>
-                                            <textarea className="w-full h-24 text-sm p-3 bg-stone-50 rounded-2xl border-none focus:ring-0 placeholder-stone-300" 
-                                                placeholder="Wat gebeurt er deze beurt?" value={sessionNote} onChange={e => setSessionNote(e.target.value)} />
+                                            <textarea className="w-full h-20 text-xs p-2 bg-stone-50 rounded-xl border-none focus:ring-0" 
+                                                placeholder="Schrijf hier je sessie notitie..." value={sessionNote} onChange={e => setSessionNote(e.target.value)} />
                                         </div>
-
-                                        {/* Action Economy Tabs */}
+                                        {/* Tabs */}
                                         <div className="flex bg-stone-200/40 p-1.5 rounded-2xl gap-1">
                                             {['actions', 'bonus', 'reactions'].map(t => (
                                                 <button key={t} onClick={() => setCombatSubTab(t)} 
-                                                    className={`flex-1 py-2.5 text-[10px] font-black uppercase tracking-tighter rounded-xl transition-all ${combatSubTab === t ? 'bg-white shadow-sm brown-text' : 'text-stone-400'}`}>
+                                                    className={`flex-1 py-2 text-[9px] font-black uppercase rounded-xl transition-all ${combatSubTab === t ? 'bg-white shadow-sm brown-text' : 'text-stone-400'}`}>
                                                     {t}
                                                 </button>
                                             ))}
                                         </div>
-
-                                        {/* Spells/Actions List */}
+                                        {/* List */}
                                         <div className="space-y-2 pb-10">
-                                            {character.spellcasting.spells[combatSubTab]?.map((s, i) => (
-                                                <div key={i} className="bg-white p-5 rounded-3xl shadow-sm border border-stone-50 active:scale-[0.98] transition-transform">
+                                            {categorizedSpells[combatSubTab === 'bonus' ? 'bonus' : combatSubTab === 'reactions' ? 'reactions' : 'actions'].map((s, i) => (
+                                                <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-stone-50">
                                                     <div className="flex justify-between items-start">
-                                                        <span className="font-bold text-stone-800">{s.name}</span>
-                                                        <span className="text-[9px] font-bold text-stone-400 uppercase tracking-widest">{s.casting_time}</span>
+                                                        <span className="font-bold text-sm text-stone-800">{s.name}</span>
+                                                        <span className="text-[8px] font-bold text-stone-400 uppercase tracking-widest">{s.range}</span>
                                                     </div>
-                                                    <p className="text-xs text-stone-500 mt-2 leading-relaxed">{s.description}</p>
+                                                    <p className="text-[11px] text-stone-500 mt-1 leading-relaxed">{s.description || s.duration}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -285,22 +324,22 @@
                         )}
                     </main>
 
-                    {/* Bottom Navigation */}
-                    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 p-4 pb-10 flex justify-around items-center z-40">
+                    {/* Footer Nav */}
+                    <nav className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-stone-100 p-4 pb-10 flex justify-around items-center z-50">
                         <button onClick={() => setActiveTab('stats')} className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'stats' ? 'brown-text' : 'text-stone-300'}`}>
-                            <div className={`p-3.5 rounded-2xl transition-all ${activeTab === 'stats' ? 'peach-bg shadow-lg scale-110' : ''}`}><Icon name="user" size={22} /></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Stats</span>
+                            <div className={`p-3 rounded-2xl transition-all ${activeTab === 'stats' ? 'peach-bg shadow-lg scale-110' : ''}`}><Icon name="user" size={20} /></div>
+                            <span className="text-[9px] font-black uppercase tracking-widest">Stats</span>
                         </button>
                         <button onClick={() => setActiveTab('combat')} className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'combat' ? 'brown-text' : 'text-stone-300'}`}>
-                            <div className={`p-3.5 rounded-2xl transition-all ${activeTab === 'combat' ? 'peach-bg shadow-lg scale-110' : ''}`}><Icon name="sword" size={22} /></div>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Combat</span>
+                            <div className={`p-3 rounded-2xl transition-all ${activeTab === 'combat' ? 'peach-bg shadow-lg scale-110' : ''}`}><Icon name="sword" size={20} /></div>
+                            <span className="text-[9px] font-black uppercase tracking-widest">Combat</span>
                         </button>
                     </nav>
 
                     {/* Toast Notification */}
                     {notification && (
                         <div className="fixed bottom-28 left-4 right-4 z-50 animate-fade">
-                            <div className={`p-4 rounded-[1.5rem] shadow-2xl text-xs font-black text-center border-2 ${notification.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
+                            <div className={`p-4 rounded-2xl shadow-2xl text-xs font-black text-center border-2 ${notification.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
                                 {notification.msg}
                             </div>
                         </div>
